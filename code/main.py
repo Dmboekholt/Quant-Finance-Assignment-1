@@ -201,21 +201,19 @@ def main():
 
 
     #----------------------------------------#
-    # A1.4 GARCH(1,1) Model
+    # A1.4 GARCH(1,1) Model, Assuming Normal Distribution of zt 
     #----------------------------------------#
-    logging.info("\n----------------------------------------\n A1.4 \n----------------------------------------")
+    logging.info("\n----------------------------------------\n A1.4 GARCH(1,1) Model, Assuming Normal Distribution of zt \n----------------------------------------")
 
-    # A1.4.1 Sample Period 
+    # A1.4.1 Sample Period & Fit GARCH(1,1) Model
     sample_period = df['R'].iloc[:1258]
     logging.info(f"A1.4.1 Sample Period: {sample_period.shape[0]} observations")
-
-    # A1.4.1 Fit GARCH(1,1) Model
     model = arch_model(sample_period, vol='GARCH', p=1, q=1, dist='normal')
-    result = model.fit(disp='off')
-    logging.info(f"A.1.4.1 GARCH(1,1) Model Results: {result.summary()}")
+    result_garch = model.fit(disp='off')
+    logging.info(f"A.1.4.1 GARCH(1,1) Model Results: {result_garch.summary()}")
 
     # A1.4.2 Plot GARCH(1,1) Model Results (during estimation period)
-    plot_timeseries(result.conditional_volatility, 'GARCH(1,1) Model Conditional Volatility', 'Date', 'Volatility', 
+    plot_timeseries(result_garch.conditional_volatility, 'GARCH(1,1) Model Conditional Volatility', 'Date', 'Volatility', 
                     os.path.join(PLOTS_DIR, 'A1.4.2_GARCH_1_1_Model_Conditional_Volatility.png'), 
                     label='Conditional Volatility', x_data=df['DATE'].iloc[:1258].values)
 
@@ -224,21 +222,118 @@ def main():
     # historical_variance[63] starts at date 63, so use indices 0 to (1258-63-1) = 0 to 1194
     # result.conditional_volatility has 1258 values for dates 0-1257, use indices 63 to 1257
     # riskmetric_volatility[1] is for date 63, so use indices 1 to (1258-63) = 1 to 1195
+    # Note: Convert conditional_volatility (std dev) to variance (std dev^2) for proper comparison
     est_start_date = 63 
     est_end_date = 1258  
     plot_multiple_timeseries(
         [
-            historical_variance[63][:est_end_date-est_start_date],  # From date 63 to 1257
-            result.conditional_volatility[est_start_date:],  # From date 63 to 1257
-            riskmetric_volatility[1:est_end_date-est_start_date+1]  # From date 63 to 1257
+            historical_variance[63][:est_end_date-est_start_date],  # From date 63 to 1257 (variance)
+            result_garch.conditional_volatility[est_start_date:]**2,  # From date 63 to 1257 (converted to variance)
+            riskmetric_volatility[1:est_end_date-est_start_date+1]  # From date 63 to 1257 (variance)
         ],
-        ['Historical Variance (T=63)', 'GARCH(1,1) Model Conditional Volatility', 'Riskmetric Volatility'],
-        'Historical Variance vs GARCH(1,1) Model Conditional Volatility vs Riskmetric Volatility',
+        ['Historical Variance (T=63)', 'GARCH(1,1) Model Conditional Variance', 'Riskmetric Variance'],
+        'Historical Variance vs GARCH(1,1) Model Conditional Variance vs Riskmetric Variance',
         'Date',
-        'Value',
+        'Variance',
         os.path.join(PLOTS_DIR, 'A1.4.3_Historical_Variance_vs_GARCH_1_1_Model_Conditional_Volatility_vs_Riskmetric_Volatility.png'),
         x_data=df['DATE'].iloc[est_start_date:est_end_date].values
     )
+
+    # A1.4.4 Standardised Returns
+    mean = result_garch.params['mu']
+    st_dev = result_garch.conditional_volatility
+    zt = ( df['R'].iloc[:1258] - mean ) / st_dev
+    
+    # A1.4.5 Asses Normality of Standardised Returns
+    mean_zt, std_zt, kurtosis_zt, skew_zt, jarque_bera_test_zt, acf_values_zt, pacf_values_zt = summary_normality_assessment(zt)
+    log_normality_assessment(mean_zt, std_zt, kurtosis_zt, skew_zt, jarque_bera_test_zt, prefix="A1.4.4", variable_name="Standardised Returns")
+    plot_histogram(zt, 'Histogram of Standardised Returns', 'Standardised Returns', 'Density', os.path.join(PLOTS_DIR, 'A1.4.4_Histogram_Standardised_Returns.png'), mean=mean_zt)
+    plot_acf(zt, 'ACF of Standardised Returns', 'Lags', 'ACF', os.path.join(PLOTS_DIR, 'A1.4.4_ACF_Standardised_Returns.png'), lags=20)
+    plot_pacf(zt, 'PACF of Standardised Returns', 'Lags', 'PACF', os.path.join(PLOTS_DIR, 'A1.4.4_PACF_Standardised_Returns.png'), lags=20)
+
+    # A1.4.6 Asses Autocorrelation of Squared Standardised Returns
+    zt_squared = zt**2
+    plot_acf(zt_squared, 'ACF of Squared Standardised Returns', 'Lags', 'ACF', os.path.join(PLOTS_DIR, 'A1.4.6_ACF_Squared_Standardised_Returns.png'), lags=20)
+    plot_pacf(zt_squared, 'PACF of Squared Standardised Returns', 'Lags', 'PACF', os.path.join(PLOTS_DIR, 'A1.4.6_PACF_Squared_Standardised_Returns.png'), lags=20)
+
+
+    #----------------------------------------#
+    # A1.5 ARCH(1) Model, Assuming Normal Distribution of zt 
+    #----------------------------------------#
+    logging.info("\n----------------------------------------\n A1.5 ARCH(1) Model, Assuming Normal Distribution of zt \n----------------------------------------")
+
+    # A1.5.1 Sample Period & Fit ARCH(1) Model
+    sample_period = df['R'].iloc[:1258]
+    logging.info(f"A1.5.1 Sample Period: {sample_period.shape[0]} observations")
+    model = arch_model(sample_period, vol='ARCH', q=1, dist='normal')
+    result_arch = model.fit(disp='off')
+    logging.info(f"A.1.5.1 ARCH(1) Model Results: {result_arch.summary()}")
+
+    # A1.5.2 Plot ARCH(1) Model Results (during estimation period)
+    plot_timeseries(result_arch.conditional_volatility, 'ARCH(1) Model Conditional Volatility', 'Date', 'Volatility', 
+                    os.path.join(PLOTS_DIR, 'A1.5.2_ARCH_1_Model_Conditional_Volatility.png'), 
+                    label='Conditional Volatility', x_data=df['DATE'].iloc[:1258].values)
+    
+    # A1.5.3 Plot Historical Variance vs ARCH(1) Model Conditional Volatility vs Riskmetric Volatility
+    # Align all series to estimation period (dates 63 to 1257) where all three have values
+    # historical_variance[63] starts at date 63, so use indices 0 to (1258-63-1) = 0 to 1194
+    # result.conditional_volatility has 1258 values for dates 0-1257, use indices 63 to 1257
+    # riskmetric_volatility[1] is for date 63, so use indices 1 to (1258-63) = 1 to 1195
+    # Note: Convert conditional_volatility (std dev) to variance (std dev^2) for proper comparison
+    est_start_date = 63 
+    est_end_date = 1258  
+    plot_multiple_timeseries(
+        [
+            historical_variance[63][:est_end_date-est_start_date],  # From date 63 to 1257 (variance)
+            result_arch.conditional_volatility[est_start_date:]**2,  # From date 63 to 1257 (converted to variance)
+            riskmetric_volatility[1:est_end_date-est_start_date+1]  # From date 63 to 1257 (variance)
+        ],
+        ['Historical Variance (T=63)', 'ARCH(1) Model Conditional Variance', 'Riskmetric Variance'],
+        'Historical Variance vs ARCH(1) Model Conditional Variance vs Riskmetric Variance',
+        'Date',
+        'Variance',
+        os.path.join(PLOTS_DIR, 'A1.5.3_Historical_Variance_vs_ARCH_1_Model_Conditional_Volatility_vs_Riskmetric_Volatility.png'),
+        x_data=df['DATE'].iloc[est_start_date:est_end_date].values
+    )
+
+    # A1.5.4 Standardised Returns
+    mean = result_arch.params['mu']
+    st_dev = result_arch.conditional_volatility
+    zt = ( df['R'].iloc[:1258] - mean ) / st_dev
+    
+    # A1.5.5 Asses Normality of Standardised Returns
+    mean_zt, std_zt, kurtosis_zt, skew_zt, jarque_bera_test_zt, acf_values_zt, pacf_values_zt = summary_normality_assessment(zt)
+    log_normality_assessment(mean_zt, std_zt, kurtosis_zt, skew_zt, jarque_bera_test_zt, prefix="A1.5.5", variable_name="Standardised Returns")
+    plot_histogram(zt, 'Histogram of Standardised Returns', 'Standardised Returns', 'Density', os.path.join(PLOTS_DIR, 'A1.5.4_Histogram_Standardised_Returns.png'), mean=mean_zt)
+    plot_acf(zt, 'ACF of Standardised Returns', 'Lags', 'ACF', os.path.join(PLOTS_DIR, 'A1.5.5_ACF_Standardised_Returns.png'), lags=20)
+    plot_pacf(zt, 'PACF of Standardised Returns', 'Lags', 'PACF', os.path.join(PLOTS_DIR, 'A1.5.4_PACF_Standardised_Returns.png'), lags=20)
+
+    # A1.5.6 Asses Autocorrelation of Squared Standardised Returns
+    zt_squared = zt**2
+    plot_acf(zt_squared, 'ACF of Squared Standardised Returns', 'Lags', 'ACF', os.path.join(PLOTS_DIR, 'A1.5.6_ACF_Squared_Standardised_Returns.png'), lags=20)
+    plot_pacf(zt_squared, 'PACF of Squared Standardised Returns', 'Lags', 'PACF', os.path.join(PLOTS_DIR, 'A1.5.6_PACF_Squared_Standardised_Returns.png'), lags=20)
+
+    # Plot Arch(1) vs Garch(1,1)
+    plot_multiple_timeseries(
+        [
+            result_garch.conditional_volatility[est_start_date:]**2,  # From date 63 to 1257 (converted to variance)
+            result_arch.conditional_volatility[est_start_date:]**2,  # From date 63 to 1257 (converted to variance)
+        ],
+        ['GARCH(1,1) Model Conditional Variance', 'ARCH(1) Model Conditional Variance'],
+        'GARCH(1,1) Model Conditional Variance vs ARCH(1) Model Conditional Variance',
+        'Date',
+        'Variance',
+        os.path.join(PLOTS_DIR, 'A1.5.7_GARCH_1_1_Model_Conditional_Variance_vs_ARCH_1_Model_Conditional_Variance.png'),
+        x_data=df['DATE'].iloc[est_start_date:est_end_date].values
+    )
+
+
+#----------------------------------------#
+# A1.6 ARCH(1) Model, Assuming t-Distribution of zt 
+#----------------------------------------#
+logging.info("\n----------------------------------------\n A1.6 \n----------------------------------------")
+
+
 
 
 
