@@ -214,25 +214,30 @@ def main():
     result = model.fit(disp='off')
     logging.info(f"A.1.4.1 GARCH(1,1) Model Results: {result.summary()}")
 
-    # A1.4.2 Plot GARCH(1,1) Model Results
+    # A1.4.2 Plot GARCH(1,1) Model Results (during estimation period)
     plot_timeseries(result.conditional_volatility, 'GARCH(1,1) Model Conditional Volatility', 'Date', 'Volatility', 
                     os.path.join(PLOTS_DIR, 'A1.4.2_GARCH_1_1_Model_Conditional_Volatility.png'), 
-                    label='Conditional Volatility', x_data=df['DATE'].iloc[1258:].values)
+                    label='Conditional Volatility', x_data=df['DATE'].iloc[:1258].values)
 
-
-    # A1.4.3 Plot Historical Variance vs Garch(1,1) Model Conditional Volatility vs Riskmetric Volatility
-    print(len(historical_variance[63][1258-63:]))
-    print(len(result.conditional_volatility))
-    print(len(riskmetric_volatility[1258-62:]))
-    print(len(df['DATE'].iloc[1258:]))
+    # A1.4.3 Plot Historical Variance vs GARCH(1,1) Model Conditional Volatility vs Riskmetric Volatility
+    # Align all series to estimation period (dates 63 to 1257) where all three have values
+    # historical_variance[63] starts at date 63, so use indices 0 to (1258-63-1) = 0 to 1194
+    # result.conditional_volatility has 1258 values for dates 0-1257, use indices 63 to 1257
+    # riskmetric_volatility[1] is for date 63, so use indices 1 to (1258-63) = 1 to 1195
+    est_start_date = 63 
+    est_end_date = 1258  
     plot_multiple_timeseries(
-        [historical_variance[63][1258-65:], result.conditional_volatility, riskmetric_volatility[1258-66:]],
-        ['Historical Variance', 'GARCH(1,1) Model Conditional Volatility', 'Riskmetric Volatility'],
+        [
+            historical_variance[63][:est_end_date-est_start_date],  # From date 63 to 1257
+            result.conditional_volatility[est_start_date:],  # From date 63 to 1257
+            riskmetric_volatility[1:est_end_date-est_start_date+1]  # From date 63 to 1257
+        ],
+        ['Historical Variance (T=63)', 'GARCH(1,1) Model Conditional Volatility', 'Riskmetric Volatility'],
         'Historical Variance vs GARCH(1,1) Model Conditional Volatility vs Riskmetric Volatility',
         'Date',
         'Value',
         os.path.join(PLOTS_DIR, 'A1.4.3_Historical_Variance_vs_GARCH_1_1_Model_Conditional_Volatility_vs_Riskmetric_Volatility.png'),
-        x_data=df['DATE'].iloc[1258:].values
+        x_data=df['DATE'].iloc[est_start_date:est_end_date].values
     )
 
 
