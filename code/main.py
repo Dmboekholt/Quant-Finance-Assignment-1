@@ -9,7 +9,9 @@ from re import L
 import sys
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')  # Set non-interactive backend before importing pyplot
+from matplotlib import pyplot as plt
 from arch import arch_model
 
 # Import configuration
@@ -22,6 +24,7 @@ import logging
 from Testing.summary import summary_normality_assessment, summary_autocorrelation_assessment, summary_basic_statistics
 from Plotting.plots import plot_histogram, plot_acf, plot_pacf, plot_timeseries, plot_multiple_timeseries
 from Logging.normality import log_normality_assessment
+from sklearn.metrics import mean_squared_error
 
 def main():
     """
@@ -208,7 +211,7 @@ def main():
     # A1.4.1 Sample Period & Fit GARCH(1,1) Model
     sample_period = df['R'].iloc[:1258]
     logging.info(f"A1.4.1 Sample Period: {sample_period.shape[0]} observations")
-    model = arch_model(sample_period, vol='GARCH', p=1, q=1, dist='normal')
+    model = arch_model(sample_period, mean = 'Constant', vol='GARCH', p=1, q=1, dist='normal')
     result_garch = model.fit(disp='off')
     logging.info(f"A.1.4.1 GARCH(1,1) Model Results: {result_garch.summary()}")
 
@@ -265,7 +268,7 @@ def main():
     # A1.5.1 Sample Period & Fit ARCH(1) Model
     sample_period = df['R'].iloc[:1258]
     logging.info(f"A1.5.1 Sample Period: {sample_period.shape[0]} observations")
-    model = arch_model(sample_period, vol='ARCH', q=1, dist='normal')
+    model = arch_model(sample_period, mean='Constant', vol='ARCH', q=1, dist='normal')
     result_arch = model.fit(disp='off')
     logging.info(f"A.1.5.1 ARCH(1) Model Results: {result_arch.summary()}")
 
@@ -327,19 +330,79 @@ def main():
         x_data=df['DATE'].iloc[est_start_date:est_end_date].values
     )
 
-
-#----------------------------------------#
-# A1.6 ARCH(1) Model, Assuming t-Distribution of zt 
-#----------------------------------------#
-logging.info("\n----------------------------------------\n A1.6 \n----------------------------------------")
-
-
-
+    #----------------------------------------#
+    # A1.6 Threshold GARCH (asymmetric) and GARCH-X
+    #----------------------------------------#
+    logging.info("\n----------------------------------------\n A1.6 Threshold GARCH (asymmetric) and GARCH-X \n----------------------------------------")
+    sample_period = df['R'].iloc[:1258]
+    logging.info(f"A1.6.1 Sample Period: {sample_period.shape[0]} observations")
 
 
+   # A1.6.1 Threshold GARCH (asymmetric)
+    threshold_garch_model = arch_model(
+        sample_period,
+        mean='Constant',
+        vol="GARCH",
+        p=1,
+        o=1,
+        q=1,
+        dist="normal"
+    )
+    threshold_garch_result = threshold_garch_model.fit(disp='off')
+    logging.info(f"A1.6.2 Threshold Garch Model Results:\n{threshold_garch_result.summary()}")
 
-if __name__ == "__main__":
-    setup_logging()
-    main()
+
+    # A1.6.2 GARCH-X
+    rv_sample = df['RV'].iloc[:1258]
+    exog = rv_sample.shift(1)
+    data = pd.DataFrame({'R': sample_period, 'RV_lag1': exog}).dropna()
+
+    y = data['R']
+    X = data['RV_lag1']
+
+    garchx_model = arch_model(
+        y,
+        mean='Constant',
+        vol="GARCH",
+        p=1,
+        q=1,
+        x=X,
+        dist="normal"
+    )
+    garchx_result = garchx_model.fit(disp='off')
+    logging.info(f"A1.6.3 GARCHX Model Results:\n{garchx_result.summary()}")
+
+    # A1.6.3 - Inspect models for  Dec 2018 return
+    logging.info(f"A1.6.3 Log 26 Jan 2016 return: {df[df['DATE'] == '2016-01-26']['R'].values[0]:.6f}")
+    Garch_conditional_volatility_26_Jan_2016 = threshold_garch_result.conditional_volatility[df[df['DATE'] == '2016-01-26'].index[0]]
+    GarchX_conditional_volatility_26_Jan_2016 = garchx_result.conditional_volatility[df[df['DATE'] == '2016-01-26'].index[0]]
+    Threshold_Garch_conditional_volatility_26_Jan_2016 = threshold_garch_result.conditional_volatility[df[df['DATE'] == '2016-01-26'].index[0]]
+    logging.info(f"A1.6.3 Threshold Garch Conditional Volatility 26 Jan 2016: {Threshold_Garch_conditional_volatility_26_Jan_2016:.6f}")
+    logging.info(f"A1.6.3 GarchX Conditional Volatility 26 Jan 2016: {GarchX_conditional_volatility_26_Jan_2016:.6f}")
+    logging.info(f"A1.6.3 Garch Conditional Volatility 26 Jan 2016: {Garch_conditional_volatility_26_Jan_2016:.6f}")
+
+    # A1.6.3 - Inspect models for 14 Dec 2018 return
+    logging.info(f"A1.6.3 Log 14 Dec 2018 return: {df[df['DATE'] == '2018-12-14']['R'].values[0]:.6f}")
+    Garch_conditional_volatility_14_Dec_2018 = threshold_garch_result.conditional_volatility[df[df['DATE'] == '2018-12-14'].index[0]]
+    GarchX_conditional_volatility_14_Dec_2018 = garchx_result.conditional_volatility[df[df['DATE'] == '2018-12-14'].index[0]]
+    Threshold_Garch_conditional_volatility_14_Dec_2018 = threshold_garch_result.conditional_volatility[df[df['DATE'] == '2018-12-14'].index[0]]
+    logging.info(f"A1.6.3 Threshold Garch Conditional Volatility 14 Dec 2018: {Threshold_Garch_conditional_volatility_14_Dec_2018:.6f}")
+    logging.info(f"A1.6.3 GarchX Conditional Volatility 14 Dec 2018: {GarchX_conditional_volatility_14_Dec_2018:.6f}")
+    logging.info(f"A1.6.3 Garch Conditional Volatility 14 Dec 2018: {Garch_conditional_volatility_14_Dec_2018:.6f}")
 
 
+    #----------------------------------------#
+    # A1.7 Forecasting Volatility
+    #----------------------------------------#
+    logging.info("\n----------------------------------------\n A1.7 Forecasting Volatility \n----------------------------------------")
+    
+    # A1.7.1 Forecast Period and Real Variance Proxy
+    forecast_period = df['R'].iloc[1258:]
+    logging.info(f"A1.7.1 Forecast Period: {forecast_period.shape[0]} observations")
+    variance_proxy_squared_returns = df['R'].iloc[1258:]**2
+    variance_proxy_realised_variance = df['RV'].iloc[1258:]
+    logging.info(f"A1.7.1 Variance Proxy Squared Returns: {variance_proxy_squared_returns.shape[0]} observations")
+    logging.info(f"A1.7.1 Variance Proxy Realised Variance: {variance_proxy_realised_variance.shape[0]} observations")
+    
+
+    

@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')  # Set non-interactive backend before importing pyplot
 from matplotlib import pyplot as plt
 import seaborn as sns
 from statsmodels.graphics.tsaplots import plot_acf as statsmodels_plot_acf, plot_pacf as statsmodels_plot_pacf
