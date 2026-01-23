@@ -189,11 +189,16 @@ def plot_multiple_timeseries(data_list, labels_list, title, xlabel, ylabel, save
     
     # Plot each time series with contrasting colors
     for i, (data, label) in enumerate(zip(data_list, labels_list)):
+        # Convert data to numpy array to handle both lists and arrays
+        data_array = np.asarray(data).flatten()
         color = colors[i % len(colors)]  # Cycle through colors if more series than colors
         if x_data is not None:
-            ax.plot(x_data, data, label=label, linewidth=2, color=color)
+            x_array = np.asarray(x_data).flatten()
+            # Ensure data and x have same length
+            min_len = min(len(x_array), len(data_array))
+            ax.plot(x_array[:min_len], data_array[:min_len], label=label, linewidth=2, color=color)
         else:
-            ax.plot(data, label=label, linewidth=2, color=color)
+            ax.plot(data_array, label=label, linewidth=2, color=color)
     
     # Format dates on x-axis if datetime
     if use_dates:
@@ -205,8 +210,8 @@ def plot_multiple_timeseries(data_list, labels_list, title, xlabel, ylabel, save
     ax.set_xlabel(xlabel, fontsize=12)
     ax.set_ylabel(ylabel, fontsize=12)
     
-    # Add legend
-    ax.legend(loc='best', frameon=True, fancybox=True, shadow=True)
+    # Add legend with better positioning for many items
+    ax.legend(loc='best', frameon=True, fancybox=True, shadow=True, fontsize=10, ncol=2)
     
     # Add grid
     ax.grid(True, alpha=0.3, linestyle='--')

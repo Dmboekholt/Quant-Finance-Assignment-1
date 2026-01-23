@@ -2,7 +2,6 @@
 Machine Learning Assignment
 Main script for data processing and model training
 """
-
 # Basic Imports
 import os
 from re import L
@@ -21,9 +20,10 @@ from config import DATA_DIR, PLOTS_DIR, setup_logging
 import logging
 
 # Import summary statistics
-from Testing.summary import summary_normality_assessment, summary_autocorrelation_assessment, summary_basic_statistics
+from Testing.summary import summary_normality_assessment, summary_autocorrelation_assessment, summary_basic_statistics , calculate_MSPE
 from Plotting.plots import plot_histogram, plot_acf, plot_pacf, plot_timeseries, plot_multiple_timeseries
 from Logging.normality import log_normality_assessment
+from evaluation import evaluate_models, output_evaluation_results
 from sklearn.metrics import mean_squared_error
 
 def main():
@@ -395,14 +395,148 @@ def main():
     # A1.7 Forecasting Volatility
     #----------------------------------------#
     logging.info("\n----------------------------------------\n A1.7 Forecasting Volatility \n----------------------------------------")
-    
-    # A1.7.1 Forecast Period and Real Variance Proxy
     forecast_period = df['R'].iloc[1258:]
     logging.info(f"A1.7.1 Forecast Period: {forecast_period.shape[0]} observations")
-    variance_proxy_squared_returns = df['R'].iloc[1258:]**2
-    variance_proxy_realised_variance = df['RV'].iloc[1258:]
-    logging.info(f"A1.7.1 Variance Proxy Squared Returns: {variance_proxy_squared_returns.shape[0]} observations")
-    logging.info(f"A1.7.1 Variance Proxy Realised Variance: {variance_proxy_realised_variance.shape[0]} observations")
+    variance_proxy = df['R'].iloc[1258:]**2
+    logging.info(f"A1.7.1 Variance Proxy (Squared Returns): {variance_proxy.shape[0]} observations")
+    historical_var_forecast = historical_variance[63][1258-63:]
+    # Riskmetric Volatility - continue from where it ended
+    riskmetric_var_forecast = riskmetric_volatility[1+1258-63:]    
+    # For GARCH, ARCH, Threshold GARCH, and GARCHX models, generate rolling one-step-ahead forecasts
+    # by refitting for each day in the forecast period
+    logging.info("Generating rolling one-step-ahead forecasts for GARCH models...")
     
+    # Use evaluate_models function to generate one-step-ahead forecasts
+    forecasts = evaluate_models(variance_proxy, df, horizon=1)
+    garch_var_forecast = forecasts['GARCH']
+    arch_var_forecast = forecasts['ARCH']
+    threshold_garch_var_forecast = forecasts['Threshold_GARCH']
+    garchx_var_forecast = forecasts['GARCH_X']
+    
+    # Calculate MSPE for each model using squared returns proxy
+    logging.info("\nA1.7.1 MSPE using Squared Returns as proxy:")
+    # Create forecasts dictionary for all models including non-GARCH models
+    all_forecasts = {
+        'Historical_Variance_T63': historical_var_forecast,
+        'Riskmetric': riskmetric_var_forecast,
+        'GARCH': garch_var_forecast,
+        'ARCH': arch_var_forecast,
+        'Threshold_GARCH': threshold_garch_var_forecast,
+        'GARCH_X': garchx_var_forecast
+    }
+    for model_name, predicted in all_forecasts.items():
+        calculate_MSPE(variance_proxy, predicted, model_name=model_name)
+
+    # Get realised variance for comparison
+    variance_proxy_realised = df['RV'].iloc[1258:]
+
+    # A1.7.2 Calculate MSPE using Realised Variance as proxy
+    logging.info("\nA1.7.2 MSPE using Realised Variance (RV) as proxy:")
+    for model_name, predicted in all_forecasts.items():
+        calculate_MSPE(variance_proxy_realised, predicted, model_name=f"{model_name} (RV)")
+
+
+    # Plot all models together
+    plot_multiple_timeseries(
+        [
+            variance_proxy.values,
+            historical_var_forecast,
+            riskmetric_var_forecast,
+            garch_var_forecast,
+            arch_var_forecast,
+            threshold_garch_var_forecast,
+            garchx_var_forecast
+        ],
+        [
+            'Realised Variance Proxy',
+            'Historical Variance T=63',
+            'Riskmetric Volatility',
+            'GARCH(1,1) Model',
+            'ARCH(1) Model',
+            'Threshold GARCH Model',
+            'GARCH-X Model'
+        ],
+        'Forecasted Variances vs Realised Variance Proxy',
+        'Date',
+        'Variance',
+        os.path.join(PLOTS_DIR, 'A1.7.1_Forecasted_Variances_vs_Realised_Variance_Proxy.png'),
+        x_data=df['DATE'].iloc[1258:].values
+    )
+
+    # A1.7.2 Plot individual models with both variance proxies
+    # Historical Variance T=63
+    plot_multiple_timeseries(
+        [variance_proxy.values, variance_proxy_realised.values, historical_var_forecast],
+        ['Squared Returns Proxy', 'Realised Variance', 'Historical Variance T=63 Forecast'],
+        'Historical Variance T=63 vs Variance Proxies',
+        'Date', 'Variance',
+        os.path.join(PLOTS_DIR, 'A1.7.2_Historical_Variance_T63.png'),
+        x_data=df['DATE'].iloc[1258:].values
+    )
+    
+    # Riskmetric Volatility
+    plot_multiple_timeseries(
+        [variance_proxy.values, variance_proxy_realised.values, riskmetric_var_forecast],
+        ['Squared Returns Proxy', 'Realised Variance', 'Riskmetric Volatility Forecast'],
+        'Riskmetric Volatility vs Variance Proxies',
+        'Date', 'Variance',
+        os.path.join(PLOTS_DIR, 'A1.7.2_Riskmetric_Volatility.png'),
+        x_data=df['DATE'].iloc[1258:].values
+    )
+    
+    # GARCH(1,1) Model
+    plot_multiple_timeseries(
+        [variance_proxy.values, variance_proxy_realised.values, garch_var_forecast],
+        ['Squared Returns Proxy', 'Realised Variance', 'GARCH(1,1) Forecast'],
+        'GARCH(1,1) Model vs Variance Proxies',
+        'Date', 'Variance',
+        os.path.join(PLOTS_DIR, 'A1.7.2_GARCH_1_1_Model.png'),
+        x_data=df['DATE'].iloc[1258:].values
+    )
+    
+    # ARCH(1) Model
+    plot_multiple_timeseries(
+        [variance_proxy.values, variance_proxy_realised.values, arch_var_forecast],
+        ['Squared Returns Proxy', 'Realised Variance', 'ARCH(1) Forecast'],
+        'ARCH(1) Model vs Variance Proxies',
+        'Date', 'Variance',
+        os.path.join(PLOTS_DIR, 'A1.7.2_ARCH_1_Model.png'),
+        x_data=df['DATE'].iloc[1258:].values
+    )
+    
+    # Threshold GARCH Model
+    plot_multiple_timeseries(
+        [variance_proxy.values, variance_proxy_realised.values, threshold_garch_var_forecast],
+        ['Squared Returns Proxy', 'Realised Variance', 'Threshold GARCH Forecast'],
+        'Threshold GARCH Model vs Variance Proxies',
+        'Date', 'Variance',
+        os.path.join(PLOTS_DIR, 'A1.7.2_Threshold_GARCH_Model.png'),
+        x_data=df['DATE'].iloc[1258:].values
+    )
+    
+    # GARCH-X Model
+    plot_multiple_timeseries(
+        [variance_proxy.values, variance_proxy_realised.values, garchx_var_forecast],
+        ['Squared Returns Proxy', 'Realised Variance', 'GARCH-X Forecast'],
+        'GARCH-X Model vs Variance Proxies',
+        'Date', 'Variance',
+        os.path.join(PLOTS_DIR, 'A1.7.2_GARCH_X_Model.png'),
+        x_data=df['DATE'].iloc[1258:].values
+    )
+
+
+    #----------------------------------------#
+    # A1.8 Forecasting Volatility
+    #----------------------------------------#
+
+    logging.info("\n----------------------------------------\n A1.8 Forecasting Volatility \n----------------------------------------")
+    # A1.8.1 Plot Forecasted Variances vs Realised Variance Proxy
+
+
+if __name__ == "__main__":  
+    # Setup logging
+    setup_logging()
+    # Run main function
+    main()
 
     
