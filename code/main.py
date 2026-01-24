@@ -20,10 +20,10 @@ from config import DATA_DIR, PLOTS_DIR, setup_logging
 import logging
 
 # Import summary statistics
-from Testing.summary import summary_normality_assessment, summary_autocorrelation_assessment, summary_basic_statistics , calculate_MSPE
+from Testing.summary import summary_normality_assessment, summary_autocorrelation_assessment, summary_basic_statistics
 from Plotting.plots import plot_histogram, plot_acf, plot_pacf, plot_timeseries, plot_multiple_timeseries
 from Logging.normality import log_normality_assessment
-from evaluation import evaluate_models, output_evaluation_results
+from evaluation import evaluate_models,calculate_MSPE, calculate_var_estimates, calculate_var_violations, christoffersen_uc_test, christoffersen_ind_test
 from sklearn.metrics import mean_squared_error
 
 def main():
@@ -526,11 +526,78 @@ def main():
 
 
     #----------------------------------------#
-    # A1.8 Forecasting Volatility
+    # A1.8 Value-at-Risk (VaR) Analysis with Christoffersen Tests
     #----------------------------------------#
 
-    logging.info("\n----------------------------------------\n A1.8 Forecasting Volatility \n----------------------------------------")
-    # A1.8.1 Plot Forecasted Variances vs Realised Variance Proxy
+    logging.info("\n----------------------------------------\n A1.8 Value-at-Risk (VaR) Analysis \n----------------------------------------")
+    logging.info("A1.8 Constructing 1-day ahead VaR estimates at 90%, 95%, and 99% confidence levels")
+    # Prepare variance forecasts for VaR calculation (convert to dict with all 6 models)
+    variance_forecasts_all = {
+        'Historical_Variance': historical_var_forecast,
+        'Riskmetric': riskmetric_var_forecast,
+        'GARCH': garch_var_forecast,
+        'ARCH': arch_var_forecast,
+        'Threshold_GARCH': threshold_garch_var_forecast,
+        'GARCH_X': garchx_var_forecast
+    }
+    # Calculate VaR estimates
+    confidence_levels = [0.90, 0.95, 0.99]
+    var_estimates = calculate_var_estimates(forecast_period.values, variance_forecasts_all, confidence_levels)
+    logging.info("A1.8 VaR estimates calculated for all models and confidence levels")
+    # Calculate VaR violations (backtesting)
+    var_violations = calculate_var_violations(forecast_period.values, var_estimates, confidence_levels)
+    # Log VaR violation statistics
+    for confidence in confidence_levels:
+        logging.info(f"\nA1.8 VaR Violations at {confidence*100:.0f}% Confidence Level:")
+        logging.info(f"  Expected violation rate: {(1-confidence)*100:.2f}%")
+        for model_name, stats_dict in var_violations[confidence].items():
+            logging.info(f"  {model_name}:")
+            logging.info(f"    Breaches: {stats_dict['breaches']:.0f} / {len(forecast_period)} (Rate: {stats_dict['violation_rate']*100:.2f}%)")
+    
+    # Christoffersen Unconditional Coverage (UC) Test
+    logging.info("\n\nA1.8 Christoffersen Unconditional Coverage (UC) Test:")
+    logging.info("H0: The number of VaR violations equals the expected number (correct coverage)")
+    
+    for confidence in confidence_levels:
+        logging.info(f"\n--- {confidence*100:.0f}% Confidence Level ---")
+        uc_results = christoffersen_uc_test(forecast_period.values, var_estimates[confidence], confidence)
+        
+        for model_name, test_results in uc_results.items():
+            logging.info(f"\n  {model_name}:")
+            logging.info(f"    Violations: {test_results['violations']:.0f} (Expected: {test_results['expected_violations']:.2f})")
+            logging.info(f"    Violation Rate: {test_results['violation_rate']*100:.2f}% (Expected: {test_results['expected_rate']*100:.2f}%)")
+            logging.info(f"    LR_UC Statistic: {test_results['LR_UC']:.4f}")
+            logging.info(f"    p-value: {test_results['p_value']:.4f}")
+            logging.info(f"    Reject H0 (p < 0.05): {test_results['reject_h0']}")
+    
+    # Christoffersen Independence (Ind) Test
+    logging.info("\n\nA1.8 Christoffersen Independence (Ind) Test:")
+    logging.info("H0: VaR violations are independently distributed (no clustering)")
+    
+    for confidence in confidence_levels:
+        logging.info(f"\n--- {confidence*100:.0f}% Confidence Level ---")
+        ind_results = christoffersen_ind_test(forecast_period.values, var_estimates[confidence], confidence)
+        
+        for model_name, test_results in ind_results.items():
+            if not np.isnan(test_results['LR_Ind']):
+                logging.info(f"\n  {model_name}:")
+                logging.info(f"    Transitions 00 (No violation -> No violation): {test_results['transitions_00']}")
+                logging.info(f"    Transitions 01 (No violation -> Violation): {test_results['transitions_01']}")
+                logging.info(f"    Transitions 10 (Violation -> No violation): {test_results['transitions_10']}")
+                logging.info(f"    Transitions 11 (Violation -> Violation): {test_results['transitions_11']}")
+                logging.info(f"    Total Violations: {test_results['total_violations']}")
+                logging.info(f"    LR_Ind Statistic: {test_results['LR_Ind']:.4f}")
+                logging.info(f"    p-value: {test_results['p_value']:.4f}")
+                logging.info(f"    Reject H0 (p < 0.05): {test_results['reject_h0']}")
+            else:
+                logging.info(f"\n  {model_name}: Unable to compute (insufficient violations)")
+    
+    logging.info("\n\nA1.8 Note: Reject H0 at 5% significance level means the model's VaR estimates")
+    logging.info("      fail the UC test (incorrect coverage) or Ind test (violations clustered).")
+
+
+
+
 
 
 if __name__ == "__main__":  
