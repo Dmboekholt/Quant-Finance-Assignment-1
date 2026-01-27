@@ -6,12 +6,14 @@ Main script for data processing and model training
 import os
 from re import L
 import sys
+import arch
 import pandas as pd
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')  # Set non-interactive backend before importing pyplot
 from matplotlib import pyplot as plt
 from arch import arch_model
+
 
 # Import configuration
 from config import DATA_DIR, PLOTS_DIR, setup_logging
@@ -25,6 +27,7 @@ from Plotting.plots import plot_histogram, plot_acf, plot_pacf, plot_timeseries,
 from Logging.normality import log_normality_assessment
 from evaluation import evaluate_models,calculate_MSPE, calculate_var_estimates, calculate_var_violations, christoffersen_uc_test, christoffersen_ind_test
 from sklearn.metrics import mean_squared_error
+from GARCHX import estimate_garchx, compute_garchx_variances, compute_garchx_standard_errors, create_garchx_result_object
 
 def main():
     """
@@ -351,43 +354,65 @@ def main():
     threshold_garch_result = threshold_garch_model.fit(disp='off')
     logging.info(f"A1.6.2 Threshold Garch Model Results:\n{threshold_garch_result.summary()}")
 
-
     # A1.6.2 GARCH-X
+    logging.info("Estimating GARCH-X model...")
+
     rv_sample = df['RV'].iloc[:1258]
     exog = rv_sample.shift(1)
     data = pd.DataFrame({'R': sample_period, 'RV_lag1': exog}).dropna()
 
-    y = data['R']
-    X = data['RV_lag1']
+    y = data['R'].values
+    X = data['RV_lag1'].values
 
-    garchx_model = arch_model(
-        y,
-        mean='Constant',
-        vol="GARCH",
-        p=1,
-        q=1,
-        x=X,
-        dist="normal"
-    )
-    garchx_result = garchx_model.fit(disp='off')
-    logging.info(f"A1.6.3 GARCHX Model Results:\n{garchx_result.summary()}")
+    # Estimate
+    garchx_opt_result = estimate_garchx(y, X)
+
+    if not garchx_opt_result.success:
+        logging.warning(f"GARCH-X optimization warning: {garchx_opt_result.message}")
+
+    # Extract parameters
+    params = garchx_opt_result.x
+    mu, omega, alpha, beta, delta = params
+
+    # Compute conditional variances
+    sigma2 = compute_garchx_variances(params, y, X)
+
+    # Compute standard errors
+    std_errors = compute_garchx_standard_errors(params, y, X)
+
+    # Log likelihood
+    loglik = -garchx_opt_result.fun
+
+    # Create result object
+    garchx_result = create_garchx_result_object(params, std_errors, sigma2, loglik)
+
+    # Log results
+    logging.info(f"A1.6.3 GARCHX Model Results:")
+    logging.info(f"  Parameters:")
+    logging.info(f"    mu:    {mu:.6f} (std err: {std_errors[0]:.6f})")
+    logging.info(f"    omega: {omega:.6f} (std err: {std_errors[1]:.6f})")
+    logging.info(f"    alpha: {alpha:.6f} (std err: {std_errors[2]:.6f})")
+    logging.info(f"    beta:  {beta:.6f} (std err: {std_errors[3]:.6f})")
+    logging.info(f"    delta: {delta:.6f} (std err: {std_errors[4]:.6f})")
+    logging.info(f"  alpha + beta: {alpha + beta:.6f}")
+    logging.info(f"  Log-likelihood: {loglik:.2f}")
+    # Check if delta is significant
+    if not np.isnan(std_errors[4]):
+        t_stat = delta / std_errors[4]
+        logging.info(f"  Delta t-statistic: {t_stat:.3f} (significant if |t| > 1.96)")
 
     # A1.6.3 - Inspect models for  Dec 2018 return
     logging.info(f"A1.6.3 Log 26 Jan 2016 return: {df[df['DATE'] == '2016-01-26']['R'].values[0]:.6f}")
     Garch_conditional_volatility_26_Jan_2016 = threshold_garch_result.conditional_volatility[df[df['DATE'] == '2016-01-26'].index[0]]
-    GarchX_conditional_volatility_26_Jan_2016 = garchx_result.conditional_volatility[df[df['DATE'] == '2016-01-26'].index[0]]
     Threshold_Garch_conditional_volatility_26_Jan_2016 = threshold_garch_result.conditional_volatility[df[df['DATE'] == '2016-01-26'].index[0]]
     logging.info(f"A1.6.3 Threshold Garch Conditional Volatility 26 Jan 2016: {Threshold_Garch_conditional_volatility_26_Jan_2016:.6f}")
-    logging.info(f"A1.6.3 GarchX Conditional Volatility 26 Jan 2016: {GarchX_conditional_volatility_26_Jan_2016:.6f}")
     logging.info(f"A1.6.3 Garch Conditional Volatility 26 Jan 2016: {Garch_conditional_volatility_26_Jan_2016:.6f}")
 
     # A1.6.3 - Inspect models for 14 Dec 2018 return
     logging.info(f"A1.6.3 Log 14 Dec 2018 return: {df[df['DATE'] == '2018-12-14']['R'].values[0]:.6f}")
     Garch_conditional_volatility_14_Dec_2018 = threshold_garch_result.conditional_volatility[df[df['DATE'] == '2018-12-14'].index[0]]
-    GarchX_conditional_volatility_14_Dec_2018 = garchx_result.conditional_volatility[df[df['DATE'] == '2018-12-14'].index[0]]
     Threshold_Garch_conditional_volatility_14_Dec_2018 = threshold_garch_result.conditional_volatility[df[df['DATE'] == '2018-12-14'].index[0]]
     logging.info(f"A1.6.3 Threshold Garch Conditional Volatility 14 Dec 2018: {Threshold_Garch_conditional_volatility_14_Dec_2018:.6f}")
-    logging.info(f"A1.6.3 GarchX Conditional Volatility 14 Dec 2018: {GarchX_conditional_volatility_14_Dec_2018:.6f}")
     logging.info(f"A1.6.3 Garch Conditional Volatility 14 Dec 2018: {Garch_conditional_volatility_14_Dec_2018:.6f}")
 
 
@@ -594,11 +619,13 @@ def main():
     
     logging.info("\n\nA1.8 Note: Reject H0 at 5% significance level means the model's VaR estimates")
     logging.info("      fail the UC test (incorrect coverage) or Ind test (violations clustered).")
+    print(arch.__version__)
 
 
-
-
-
+"""
+Complete GARCH-X implementation with debugging
+Test this file separately first to make sure it works
+"""
 
 if __name__ == "__main__":  
     # Setup logging
@@ -606,4 +633,4 @@ if __name__ == "__main__":
     # Run main function
     main()
 
-    
+

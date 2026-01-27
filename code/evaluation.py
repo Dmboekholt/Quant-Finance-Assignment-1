@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import logging
 from scipy import stats
+from GARCHX import estimate_garchx, compute_garchx_variances
 
 def evaluate_models(variance_proxy, df, horizon=1):
     """
@@ -47,15 +48,28 @@ def evaluate_models(variance_proxy, df, horizon=1):
         threshold_garch_var_forecast.append(threshold_garch_f.variance.values[-1, horizon-1])
             
         # GARCH-X
+        # Manual GARCH-X refit (variance with lagged RV)
         rv_sample_refit = df['RV'].iloc[:current_idx]
         exog_refit = rv_sample_refit.shift(1)
         data_refit = pd.DataFrame({'R': sample_for_refit, 'RV_lag1': exog_refit}).dropna()
-        y_refit = data_refit['R']
-        X_refit = data_refit['RV_lag1']
-        garchx_model_refit = arch_model(y_refit, mean='Constant', vol='GARCH', p=1, q=1, x=X_refit, dist='normal')
-        garchx_result_refit = garchx_model_refit.fit(disp='off')
-        garchx_f = garchx_result_refit.forecast(horizon=horizon)
-        garchx_var_forecast.append(garchx_f.variance.values[-1, horizon-1])
+        y_refit = data_refit['R'].values
+        X_refit = data_refit['RV_lag1'].values
+
+        # Estimate parameters on the refit window
+        garchx_opt = estimate_garchx(y_refit, X_refit)
+        params = garchx_opt.x  # [mu, omega, alpha, beta, delta]
+
+        # Compute in-sample conditional variances to get the latest sigma²_t
+        sigma2_refit = compute_garchx_variances(params, y_refit, X_refit)
+
+        mu, omega, alpha, beta, delta = params
+        r_last = y_refit[-1]
+        sigma2_last = sigma2_refit[-1]
+        rv_lag_last = X_refit[-1]  # this is RV_{t-1} aligned with r_last
+
+        # One-step-ahead variance forecast: σ²_{t+1|t}
+        sigma2_forecast = omega + alpha * (r_last - mu) ** 2 + beta * sigma2_last + delta * rv_lag_last
+        garchx_var_forecast.append(sigma2_forecast)
 
     results = {
         'GARCH': np.array(garch_var_forecast),

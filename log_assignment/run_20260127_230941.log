@@ -1,0 +1,617 @@
+2026-01-27 23:09:41,479 - INFO - Logging initialized. Log file: /Users/hidde/Documents/GitHub/Quant-Finance-Assignment-1/log_assignment/run_20260127_230941.log
+2026-01-27 23:09:41,575 - INFO - Initial Returns Data (R - continuously compounded daily returns in percentage points):
+2026-01-27 23:09:41,575 - INFO -   Number of observations: 2516
+2026-01-27 23:09:41,576 - INFO -   Date range: 2014-01-02 00:00:00 to 2023-12-29 00:00:00
+2026-01-27 23:09:41,576 - INFO -   Statistics:
+2026-01-27 23:09:41,576 - INFO -     Min: -8.182250
+2026-01-27 23:09:41,576 - INFO -     Max: 6.066580
+2026-01-27 23:09:41,576 - INFO -     Mean: 0.006821
+2026-01-27 23:09:41,576 - INFO -     Std: 0.946441
+2026-01-27 23:09:41,576 - INFO - 
+----------------------------------------
+ A1.1 Stylized Facts of Returns and Realised Variance 
+----------------------------------------
+2026-01-27 23:09:41,579 - INFO - A1.1.1 Mean of Returns: 0.006821
+2026-01-27 23:09:41,579 - INFO - A1.1.1 Standard Deviation of Returns: 0.946441
+2026-01-27 23:09:41,579 - INFO - A1.1.1 Kurtosis of Returns: 7.147513
+2026-01-27 23:09:41,579 - INFO - A1.1.1 Skew of Returns: -0.673311
+2026-01-27 23:09:41,579 - INFO - A1.1.1 Jarque-Bera test statistic of Returns: 5545.719216
+2026-01-27 23:09:41,579 - INFO - A1.1.1 Jarque-Bera test p-value of Returns: 0.000000
+2026-01-27 23:09:41,814 - INFO - A1.1.2 ACF values of Returns: [ 1.          0.02318542  0.0261453  -0.01651103 -0.0628296  -0.02656015
+  0.03690219  0.03515872  0.02810959  0.02992156 -0.03138605 -0.03325255
+  0.01015165  0.00912579 -0.01696393  0.01974055  0.01757875 -0.00691712
+ -0.00255057 -0.0157828  -0.01466967]
+2026-01-27 23:09:41,815 - INFO - A1.1.2 PACF values of Returns: [ 1.          0.02319464  0.02564191 -0.01773805 -0.0629135  -0.0230151
+  0.04141018  0.03318383  0.01997639  0.02526854 -0.02908543 -0.02726162
+  0.01727687  0.0118405  -0.02458097  0.01162265  0.01885247 -0.00440252
+ -0.00347877 -0.01273419 -0.01049769]
+2026-01-27 23:09:42,061 - INFO - A1.1.3 ACF values of Squared Returns: [1.         0.21374618 0.22516606 0.20060051 0.20783497 0.1382243
+ 0.1881327  0.19671785 0.09001006 0.15578955 0.09997493 0.13567053
+ 0.14088131 0.12646984 0.09355797 0.07377704 0.0767241  0.03861339
+ 0.04961219 0.01705887 0.0296357 ]
+2026-01-27 23:09:42,061 - INFO - A1.1.3 ACF values of Absolute Returns: [1.         0.19920078 0.16379483 0.18266608 0.17420021 0.12117347
+ 0.16304852 0.1571762  0.10950964 0.14281093 0.11315781 0.14383244
+ 0.15215774 0.11826972 0.09519517 0.0802725  0.08866218 0.05555526
+ 0.09328163 0.05968674 0.04897724]
+2026-01-27 23:09:42,571 - INFO - A1.1.4 Mean of Standardised Returns: 0.029757
+2026-01-27 23:09:42,571 - INFO - A1.1.4 Standard Deviation of Standardised Returns: 0.904237
+2026-01-27 23:09:42,571 - INFO - A1.1.4 Kurtosis of Standardised Returns: 0.036235
+2026-01-27 23:09:42,571 - INFO - A1.1.4 Skew of Standardised Returns: -0.066715
+2026-01-27 23:09:42,571 - INFO - A1.1.4 Jarque-Bera test statistic of Standardised Returns: 2.004052
+2026-01-27 23:09:42,571 - INFO - A1.1.4 Jarque-Bera test p-value of Standardised Returns: 0.367135
+2026-01-27 23:09:42,782 - INFO - 
+----------------------------------------
+ A1.1 (Part II)Properties of Realised Variance 
+----------------------------------------
+2026-01-27 23:09:42,784 - INFO - A1.1.5 Mean of Realised Variance: 1.134218
+2026-01-27 23:09:42,784 - INFO - A1.1.5 Standard Deviation of Realised Variance: 4.188957
+2026-01-27 23:09:42,784 - INFO - A1.1.5 Kurtosis of Realised Variance: 1202.722888
+2026-01-27 23:09:42,784 - INFO - A1.1.5 Skew of Realised Variance: 30.665583
+2026-01-27 23:09:42,784 - INFO - A1.1.5 Jarque-Bera test statistic of Realised Variance: 152040187.699413
+2026-01-27 23:09:42,784 - INFO - A1.1.5 Jarque-Bera test p-value of Realised Variance: 0.000000
+2026-01-27 23:09:42,785 - INFO - A1.1.6 ACF values of Realised Variance: [1.         0.24261004 0.23826886 0.20183926 0.17420837 0.16209681
+ 0.13350051 0.14984458 0.11521342 0.12662288 0.10726973 0.106095
+ 0.08811382 0.07884938 0.07188731 0.05606012 0.05453454 0.04599442
+ 0.04509027 0.03133569 0.03047094]
+2026-01-27 23:09:42,786 - INFO - A1.1.6 PACF values of Realised Variance: [ 1.00000000e+00  2.42706508e-01  1.90790767e-01  1.20132703e-01
+  7.87720047e-02  6.54903606e-02  3.47868559e-02  6.12701297e-02
+  2.02632671e-02  4.03136689e-02  1.97625403e-02  2.36854047e-02
+  6.21927373e-03  4.29012891e-03  2.72243102e-03 -6.52665319e-03
+ -8.43429803e-04 -2.49217807e-03  1.47922870e-03 -9.07197688e-03
+ -3.42720291e-03]
+2026-01-27 23:09:43,042 - INFO - A1.1.7 Mean of Log Realised Variance: -0.365039
+2026-01-27 23:09:43,042 - INFO - A1.1.7 Standard Deviation of Log Realised Variance: 0.771472
+2026-01-27 23:09:43,042 - INFO - A1.1.7 Kurtosis of Log Realised Variance: 3.656018
+2026-01-27 23:09:43,042 - INFO - A1.1.7 Skew of Log Realised Variance: 1.127745
+2026-01-27 23:09:43,042 - INFO - A1.1.7 Jarque-Bera test statistic of Log Realised Variance: 1934.562536
+2026-01-27 23:09:43,042 - INFO - A1.1.7 Jarque-Bera test p-value of Log Realised Variance: 0.000000
+2026-01-27 23:09:43,238 - INFO - A1.1.8 ACF values of Log Realised Variance: [1.         0.66640613 0.60124365 0.56357263 0.52571146 0.49863562
+ 0.48258634 0.47362801 0.45248195 0.44814025 0.43584375 0.41733693
+ 0.38454878 0.37275566 0.34667764 0.34398134 0.33931405 0.32717635
+ 0.32197177 0.30587537 0.2892259 ]
+2026-01-27 23:09:43,238 - INFO - A1.1.8 PACF values of Log Realised Variance: [ 1.          0.6666711   0.28309191  0.17206141  0.09838271  0.07459946
+  0.07185693  0.07222905  0.0367252   0.05561351  0.03662599  0.01574927
+ -0.0240982   0.00730733 -0.01834906  0.02377129  0.02372951  0.00814888
+  0.01660327 -0.00465382 -0.01199424]
+2026-01-27 23:09:43,497 - INFO - 
+----------------------------------------
+ A1.2 Historical Volatility 
+----------------------------------------
+2026-01-27 23:09:43,567 - INFO - A1.2 Mean Historical Variance for T=63: 0.901139
+2026-01-27 23:09:43,567 - INFO - A1.2 Mean Historical Variance for T=125: 0.909290
+2026-01-27 23:09:43,567 - INFO - A1.2 Mean Historical Variance for T=250: 0.924365
+2026-01-27 23:09:43,567 - INFO - A1.2 Std Historical Variance for T=63: 0.805162
+2026-01-27 23:09:43,567 - INFO - A1.2 Std Historical Variance for T=125: 0.588692
+2026-01-27 23:09:43,567 - INFO - A1.2 Std Historical Variance for T=250: 0.437695
+2026-01-27 23:09:43,788 - INFO - 
+----------------------------------------
+ A1.3 Riskmetric Model 
+----------------------------------------
+2026-01-27 23:09:43,788 - INFO - A1.3.1 Initialise sigma 0: 0.565490
+2026-01-27 23:09:43,788 - INFO - A1.3.1 Initialise lambda: 0.940000
+2026-01-27 23:09:43,795 - INFO - A1.3.3 Mean Riskmetric Volatility: 0.903076
+2026-01-27 23:09:43,795 - INFO - A1.3.3 Std Riskmetric Volatility: 0.992818
+2026-01-27 23:09:44,193 - INFO - 
+----------------------------------------
+ A1.4 GARCH(1,1) Model, Assuming Normal Distribution of zt 
+----------------------------------------
+2026-01-27 23:09:44,193 - INFO - A1.4.1 Sample Period: 1258 observations
+2026-01-27 23:09:44,204 - INFO - A.1.4.1 GARCH(1,1) Model Results:                      Constant Mean - GARCH Model Results                      
+==============================================================================
+Dep. Variable:                      R   R-squared:                       0.000
+Mean Model:             Constant Mean   Adj. R-squared:                  0.000
+Vol Model:                      GARCH   Log-Likelihood:               -1530.35
+Distribution:                  Normal   AIC:                           3068.70
+Method:            Maximum Likelihood   BIC:                           3089.25
+                                        No. Observations:                 1258
+Date:                Tue, Jan 27 2026   Df Residuals:                     1257
+Time:                        23:09:44   Df Model:                            1
+                                  Mean Model                                 
+=============================================================================
+                 coef    std err          t      P>|t|       95.0% Conf. Int.
+-----------------------------------------------------------------------------
+mu             0.0164  2.519e-02      0.650      0.516 [-3.300e-02,6.576e-02]
+                               Volatility Model                              
+=============================================================================
+                 coef    std err          t      P>|t|       95.0% Conf. Int.
+-----------------------------------------------------------------------------
+omega          0.0187  1.406e-02      1.329      0.184 [-8.862e-03,4.623e-02]
+alpha[1]       0.0715  2.156e-02      3.315  9.177e-04    [2.921e-02,  0.114]
+beta[1]        0.9094  3.573e-02     25.454 6.413e-143      [  0.839,  0.979]
+=============================================================================
+
+Covariance estimator: robust
+2026-01-27 23:09:44,591 - INFO - A1.4.4 Mean of Standardised Returns: -0.000937
+2026-01-27 23:09:44,591 - INFO - A1.4.4 Standard Deviation of Standardised Returns: 0.999915
+2026-01-27 23:09:44,591 - INFO - A1.4.4 Kurtosis of Standardised Returns: 7.533211
+2026-01-27 23:09:44,591 - INFO - A1.4.4 Skew of Standardised Returns: -0.938868
+2026-01-27 23:09:44,591 - INFO - A1.4.4 Jarque-Bera test statistic of Standardised Returns: 3159.422974
+2026-01-27 23:09:44,591 - INFO - A1.4.4 Jarque-Bera test p-value of Standardised Returns: 0.000000
+2026-01-27 23:09:45,277 - INFO - 
+----------------------------------------
+ A1.5 ARCH(1) Model, Assuming Normal Distribution of zt 
+----------------------------------------
+2026-01-27 23:09:45,277 - INFO - A1.5.1 Sample Period: 1258 observations
+2026-01-27 23:09:45,283 - INFO - A.1.5.1 ARCH(1) Model Results:                       Constant Mean - ARCH Model Results                      
+==============================================================================
+Dep. Variable:                      R   R-squared:                       0.000
+Mean Model:             Constant Mean   Adj. R-squared:                  0.000
+Vol Model:                       ARCH   Log-Likelihood:               -1575.80
+Distribution:                  Normal   AIC:                           3157.60
+Method:            Maximum Likelihood   BIC:                           3173.01
+                                        No. Observations:                 1258
+Date:                Tue, Jan 27 2026   Df Residuals:                     1257
+Time:                        23:09:45   Df Model:                            1
+                                  Mean Model                                 
+=============================================================================
+                 coef    std err          t      P>|t|       95.0% Conf. Int.
+-----------------------------------------------------------------------------
+mu         8.7011e-04  2.784e-02  3.125e-02      0.975 [-5.370e-02,5.544e-02]
+                             Volatility Model                             
+==========================================================================
+                 coef    std err          t      P>|t|    95.0% Conf. Int.
+--------------------------------------------------------------------------
+omega          0.6006  6.903e-02      8.701  3.296e-18   [  0.465,  0.736]
+alpha[1]       0.2181  8.054e-02      2.707  6.781e-03 [6.020e-02,  0.376]
+==========================================================================
+
+Covariance estimator: robust
+2026-01-27 23:09:45,658 - INFO - A1.5.5 Mean of Standardised Returns: 0.009092
+2026-01-27 23:09:45,658 - INFO - A1.5.5 Standard Deviation of Standardised Returns: 1.000356
+2026-01-27 23:09:45,658 - INFO - A1.5.5 Kurtosis of Standardised Returns: 9.883057
+2026-01-27 23:09:45,658 - INFO - A1.5.5 Skew of Standardised Returns: -1.266004
+2026-01-27 23:09:45,658 - INFO - A1.5.5 Jarque-Bera test statistic of Standardised Returns: 5455.834543
+2026-01-27 23:09:45,658 - INFO - A1.5.5 Jarque-Bera test p-value of Standardised Returns: 0.000000
+2026-01-27 23:09:46,573 - INFO - 
+----------------------------------------
+ A1.6 Threshold GARCH (asymmetric) and GARCH-X 
+----------------------------------------
+2026-01-27 23:09:46,574 - INFO - A1.6.1 Sample Period: 1258 observations
+2026-01-27 23:09:46,585 - INFO - A1.6.2 Threshold Garch Model Results:
+                   Constant Mean - GJR-GARCH Model Results                    
+==============================================================================
+Dep. Variable:                      R   R-squared:                       0.000
+Mean Model:             Constant Mean   Adj. R-squared:                  0.000
+Vol Model:                  GJR-GARCH   Log-Likelihood:               -1529.29
+Distribution:                  Normal   AIC:                           3068.59
+Method:            Maximum Likelihood   BIC:                           3094.27
+                                        No. Observations:                 1258
+Date:                Tue, Jan 27 2026   Df Residuals:                     1257
+Time:                        23:09:46   Df Model:                            1
+                                  Mean Model                                 
+=============================================================================
+                 coef    std err          t      P>|t|       95.0% Conf. Int.
+-----------------------------------------------------------------------------
+mu             0.0139  2.449e-02      0.569      0.569 [-3.407e-02,6.194e-02]
+                               Volatility Model                              
+=============================================================================
+                 coef    std err          t      P>|t|       95.0% Conf. Int.
+-----------------------------------------------------------------------------
+omega          0.0186  1.342e-02      1.385      0.166 [-7.712e-03,4.488e-02]
+alpha[1]       0.0460  3.608e-02      1.274      0.203   [-2.475e-02,  0.117]
+gamma[1]       0.0345  4.051e-02      0.851      0.394   [-4.491e-02,  0.114]
+beta[1]        0.9161  3.156e-02     29.024 3.237e-185      [  0.854,  0.978]
+=============================================================================
+
+Covariance estimator: robust
+2026-01-27 23:09:46,586 - INFO - Estimating GARCH-X model...
+2026-01-27 23:09:46,671 - INFO - A1.6.3 GARCHX Model Results:
+2026-01-27 23:09:46,671 - INFO -   Parameters:
+2026-01-27 23:09:46,671 - INFO -     mu:    0.015141 (std err: 0.021094)
+2026-01-27 23:09:46,671 - INFO -     omega: 0.046813 (std err: 0.009237)
+2026-01-27 23:09:46,671 - INFO -     alpha: 0.064475 (std err: 0.017209)
+2026-01-27 23:09:46,671 - INFO -     beta:  0.537004 (std err: 0.017162)
+2026-01-27 23:09:46,671 - INFO -     delta: 0.334625 (std err: 0.018743)
+2026-01-27 23:09:46,671 - INFO -   alpha + beta: 0.601479
+2026-01-27 23:09:46,671 - INFO -   Log-likelihood: -1498.54
+2026-01-27 23:09:46,671 - INFO -   Delta t-statistic: 17.854 (significant if |t| > 1.96)
+2026-01-27 23:09:46,672 - INFO - A1.6.3 Log 26 Jan 2016 return: 3.951330
+2026-01-27 23:09:46,673 - INFO - A1.6.3 Threshold Garch Conditional Volatility 26 Jan 2016: 0.858644
+2026-01-27 23:09:46,673 - INFO - A1.6.3 Garch Conditional Volatility 26 Jan 2016: 0.858644
+2026-01-27 23:09:46,673 - INFO - A1.6.3 Log 14 Dec 2018 return: -8.182250
+2026-01-27 23:09:46,673 - INFO - A1.6.3 Threshold Garch Conditional Volatility 14 Dec 2018: 0.879162
+2026-01-27 23:09:46,673 - INFO - A1.6.3 Garch Conditional Volatility 14 Dec 2018: 0.879162
+2026-01-27 23:09:46,673 - INFO - 
+----------------------------------------
+ A1.7 Forecasting Volatility 
+----------------------------------------
+2026-01-27 23:09:46,673 - INFO - A1.7.1 Forecast Period: 1258 observations
+2026-01-27 23:09:46,673 - INFO - A1.7.1 Variance Proxy (Squared Returns): 1258 observations
+2026-01-27 23:09:46,673 - INFO - Generating rolling one-step-ahead forecasts for GARCH models...
+2026-01-27 23:10:24,398 - INFO - 
+A1.7.1 MSPE using Squared Returns as proxy:
+2026-01-27 23:10:24,399 - INFO - A1.7.1 MSPE for Historical_Variance_T63: 8.458743
+2026-01-27 23:10:24,399 - INFO - A1.7.1 MSPE for Riskmetric: 6.481566
+2026-01-27 23:10:24,399 - INFO - A1.7.1 MSPE for GARCH: 6.879294
+2026-01-27 23:10:24,399 - INFO - A1.7.1 MSPE for ARCH: 7.546467
+2026-01-27 23:10:24,399 - INFO - A1.7.1 MSPE for Threshold_GARCH: 7.026543
+2026-01-27 23:10:24,399 - INFO - A1.7.1 MSPE for GARCH_X: 6.879885
+2026-01-27 23:10:24,400 - INFO - 
+A1.7.2 MSPE using Realised Variance (RV) as proxy:
+2026-01-27 23:10:24,400 - INFO - A1.7.1 MSPE for Historical_Variance_T63 (RV): 8.991783
+2026-01-27 23:10:24,400 - INFO - A1.7.1 MSPE for Riskmetric (RV): 6.720905
+2026-01-27 23:10:24,400 - INFO - A1.7.1 MSPE for GARCH (RV): 6.606238
+2026-01-27 23:10:24,400 - INFO - A1.7.1 MSPE for ARCH (RV): 7.510394
+2026-01-27 23:10:24,400 - INFO - A1.7.1 MSPE for Threshold_GARCH (RV): 6.803516
+2026-01-27 23:10:24,400 - INFO - A1.7.1 MSPE for GARCH_X (RV): 6.607007
+2026-01-27 23:10:25,887 - INFO - 
+----------------------------------------
+ A1.8 Value-at-Risk (VaR) Analysis 
+----------------------------------------
+2026-01-27 23:10:25,888 - INFO - A1.8 Constructing 1-day ahead VaR estimates at 90%, 95%, and 99% confidence levels
+2026-01-27 23:10:25,888 - INFO - A1.8 VaR estimates calculated for all models and confidence levels
+2026-01-27 23:10:25,888 - INFO - 
+A1.8 VaR Violations at 90% Confidence Level:
+2026-01-27 23:10:25,888 - INFO -   Expected violation rate: 10.00%
+2026-01-27 23:10:25,888 - INFO -   Historical_Variance:
+2026-01-27 23:10:25,888 - INFO -     Breaches: 107 / 1258 (Rate: 8.51%)
+2026-01-27 23:10:25,888 - INFO -   Riskmetric:
+2026-01-27 23:10:25,888 - INFO -     Breaches: 102 / 1258 (Rate: 8.11%)
+2026-01-27 23:10:25,888 - INFO -   GARCH:
+2026-01-27 23:10:25,888 - INFO -     Breaches: 102 / 1258 (Rate: 8.11%)
+2026-01-27 23:10:25,888 - INFO -   ARCH:
+2026-01-27 23:10:25,888 - INFO -     Breaches: 119 / 1258 (Rate: 9.46%)
+2026-01-27 23:10:25,888 - INFO -   Threshold_GARCH:
+2026-01-27 23:10:25,888 - INFO -     Breaches: 103 / 1258 (Rate: 8.19%)
+2026-01-27 23:10:25,888 - INFO -   GARCH_X:
+2026-01-27 23:10:25,888 - INFO -     Breaches: 102 / 1258 (Rate: 8.11%)
+2026-01-27 23:10:25,888 - INFO - 
+A1.8 VaR Violations at 95% Confidence Level:
+2026-01-27 23:10:25,888 - INFO -   Expected violation rate: 5.00%
+2026-01-27 23:10:25,888 - INFO -   Historical_Variance:
+2026-01-27 23:10:25,888 - INFO -     Breaches: 68 / 1258 (Rate: 5.41%)
+2026-01-27 23:10:25,889 - INFO -   Riskmetric:
+2026-01-27 23:10:25,889 - INFO -     Breaches: 62 / 1258 (Rate: 4.93%)
+2026-01-27 23:10:25,889 - INFO -   GARCH:
+2026-01-27 23:10:25,889 - INFO -     Breaches: 68 / 1258 (Rate: 5.41%)
+2026-01-27 23:10:25,889 - INFO -   ARCH:
+2026-01-27 23:10:25,889 - INFO -     Breaches: 67 / 1258 (Rate: 5.33%)
+2026-01-27 23:10:25,889 - INFO -   Threshold_GARCH:
+2026-01-27 23:10:25,889 - INFO -     Breaches: 68 / 1258 (Rate: 5.41%)
+2026-01-27 23:10:25,889 - INFO -   GARCH_X:
+2026-01-27 23:10:25,889 - INFO -     Breaches: 68 / 1258 (Rate: 5.41%)
+2026-01-27 23:10:25,889 - INFO - 
+A1.8 VaR Violations at 99% Confidence Level:
+2026-01-27 23:10:25,889 - INFO -   Expected violation rate: 1.00%
+2026-01-27 23:10:25,889 - INFO -   Historical_Variance:
+2026-01-27 23:10:25,889 - INFO -     Breaches: 29 / 1258 (Rate: 2.31%)
+2026-01-27 23:10:25,889 - INFO -   Riskmetric:
+2026-01-27 23:10:25,889 - INFO -     Breaches: 20 / 1258 (Rate: 1.59%)
+2026-01-27 23:10:25,889 - INFO -   GARCH:
+2026-01-27 23:10:25,889 - INFO -     Breaches: 26 / 1258 (Rate: 2.07%)
+2026-01-27 23:10:25,889 - INFO -   ARCH:
+2026-01-27 23:10:25,889 - INFO -     Breaches: 30 / 1258 (Rate: 2.38%)
+2026-01-27 23:10:25,889 - INFO -   Threshold_GARCH:
+2026-01-27 23:10:25,889 - INFO -     Breaches: 27 / 1258 (Rate: 2.15%)
+2026-01-27 23:10:25,889 - INFO -   GARCH_X:
+2026-01-27 23:10:25,889 - INFO -     Breaches: 26 / 1258 (Rate: 2.07%)
+2026-01-27 23:10:25,889 - INFO - 
+
+A1.8 Christoffersen Unconditional Coverage (UC) Test:
+2026-01-27 23:10:25,889 - INFO - H0: The number of VaR violations equals the expected number (correct coverage)
+2026-01-27 23:10:25,889 - INFO - 
+--- 90% Confidence Level ---
+2026-01-27 23:10:25,889 - INFO - 
+  Historical_Variance:
+2026-01-27 23:10:25,889 - INFO -     Violations: 107 (Expected: 125.80)
+2026-01-27 23:10:25,890 - INFO -     Violation Rate: 8.51% (Expected: 10.00%)
+2026-01-27 23:10:25,890 - INFO -     LR_UC Statistic: 3.2715
+2026-01-27 23:10:25,890 - INFO -     p-value: 0.0705
+2026-01-27 23:10:25,890 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,890 - INFO - 
+  Riskmetric:
+2026-01-27 23:10:25,890 - INFO -     Violations: 102 (Expected: 125.80)
+2026-01-27 23:10:25,890 - INFO -     Violation Rate: 8.11% (Expected: 10.00%)
+2026-01-27 23:10:25,890 - INFO -     LR_UC Statistic: 5.3138
+2026-01-27 23:10:25,890 - INFO -     p-value: 0.0212
+2026-01-27 23:10:25,890 - INFO -     Reject H0 (p < 0.05): True
+2026-01-27 23:10:25,890 - INFO - 
+  GARCH:
+2026-01-27 23:10:25,890 - INFO -     Violations: 102 (Expected: 125.80)
+2026-01-27 23:10:25,890 - INFO -     Violation Rate: 8.11% (Expected: 10.00%)
+2026-01-27 23:10:25,890 - INFO -     LR_UC Statistic: 5.3138
+2026-01-27 23:10:25,890 - INFO -     p-value: 0.0212
+2026-01-27 23:10:25,890 - INFO -     Reject H0 (p < 0.05): True
+2026-01-27 23:10:25,890 - INFO - 
+  ARCH:
+2026-01-27 23:10:25,890 - INFO -     Violations: 119 (Expected: 125.80)
+2026-01-27 23:10:25,890 - INFO -     Violation Rate: 9.46% (Expected: 10.00%)
+2026-01-27 23:10:25,890 - INFO -     LR_UC Statistic: 0.4151
+2026-01-27 23:10:25,890 - INFO -     p-value: 0.5194
+2026-01-27 23:10:25,890 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,890 - INFO - 
+  Threshold_GARCH:
+2026-01-27 23:10:25,890 - INFO -     Violations: 103 (Expected: 125.80)
+2026-01-27 23:10:25,890 - INFO -     Violation Rate: 8.19% (Expected: 10.00%)
+2026-01-27 23:10:25,890 - INFO -     LR_UC Statistic: 4.8634
+2026-01-27 23:10:25,890 - INFO -     p-value: 0.0274
+2026-01-27 23:10:25,890 - INFO -     Reject H0 (p < 0.05): True
+2026-01-27 23:10:25,890 - INFO - 
+  GARCH_X:
+2026-01-27 23:10:25,890 - INFO -     Violations: 102 (Expected: 125.80)
+2026-01-27 23:10:25,890 - INFO -     Violation Rate: 8.11% (Expected: 10.00%)
+2026-01-27 23:10:25,890 - INFO -     LR_UC Statistic: 5.3138
+2026-01-27 23:10:25,890 - INFO -     p-value: 0.0212
+2026-01-27 23:10:25,890 - INFO -     Reject H0 (p < 0.05): True
+2026-01-27 23:10:25,890 - INFO - 
+--- 95% Confidence Level ---
+2026-01-27 23:10:25,891 - INFO - 
+  Historical_Variance:
+2026-01-27 23:10:25,891 - INFO -     Violations: 68 (Expected: 62.90)
+2026-01-27 23:10:25,891 - INFO -     Violation Rate: 5.41% (Expected: 5.00%)
+2026-01-27 23:10:25,891 - INFO -     LR_UC Statistic: 0.4246
+2026-01-27 23:10:25,891 - INFO -     p-value: 0.5147
+2026-01-27 23:10:25,891 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,891 - INFO - 
+  Riskmetric:
+2026-01-27 23:10:25,891 - INFO -     Violations: 62 (Expected: 62.90)
+2026-01-27 23:10:25,891 - INFO -     Violation Rate: 4.93% (Expected: 5.00%)
+2026-01-27 23:10:25,891 - INFO -     LR_UC Statistic: 0.0136
+2026-01-27 23:10:25,891 - INFO -     p-value: 0.9071
+2026-01-27 23:10:25,891 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,891 - INFO - 
+  GARCH:
+2026-01-27 23:10:25,891 - INFO -     Violations: 68 (Expected: 62.90)
+2026-01-27 23:10:25,891 - INFO -     Violation Rate: 5.41% (Expected: 5.00%)
+2026-01-27 23:10:25,891 - INFO -     LR_UC Statistic: 0.4246
+2026-01-27 23:10:25,891 - INFO -     p-value: 0.5147
+2026-01-27 23:10:25,891 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,891 - INFO - 
+  ARCH:
+2026-01-27 23:10:25,891 - INFO -     Violations: 67 (Expected: 62.90)
+2026-01-27 23:10:25,891 - INFO -     Violation Rate: 5.33% (Expected: 5.00%)
+2026-01-27 23:10:25,891 - INFO -     LR_UC Statistic: 0.2757
+2026-01-27 23:10:25,891 - INFO -     p-value: 0.5995
+2026-01-27 23:10:25,891 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,891 - INFO - 
+  Threshold_GARCH:
+2026-01-27 23:10:25,891 - INFO -     Violations: 68 (Expected: 62.90)
+2026-01-27 23:10:25,891 - INFO -     Violation Rate: 5.41% (Expected: 5.00%)
+2026-01-27 23:10:25,891 - INFO -     LR_UC Statistic: 0.4246
+2026-01-27 23:10:25,891 - INFO -     p-value: 0.5147
+2026-01-27 23:10:25,891 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,891 - INFO - 
+  GARCH_X:
+2026-01-27 23:10:25,891 - INFO -     Violations: 68 (Expected: 62.90)
+2026-01-27 23:10:25,891 - INFO -     Violation Rate: 5.41% (Expected: 5.00%)
+2026-01-27 23:10:25,891 - INFO -     LR_UC Statistic: 0.4246
+2026-01-27 23:10:25,891 - INFO -     p-value: 0.5147
+2026-01-27 23:10:25,891 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,891 - INFO - 
+--- 99% Confidence Level ---
+2026-01-27 23:10:25,892 - INFO - 
+  Historical_Variance:
+2026-01-27 23:10:25,892 - INFO -     Violations: 29 (Expected: 12.58)
+2026-01-27 23:10:25,892 - INFO -     Violation Rate: 2.31% (Expected: 1.00%)
+2026-01-27 23:10:25,892 - INFO -     LR_UC Statistic: 15.8183
+2026-01-27 23:10:25,892 - INFO -     p-value: 0.0001
+2026-01-27 23:10:25,892 - INFO -     Reject H0 (p < 0.05): True
+2026-01-27 23:10:25,892 - INFO - 
+  Riskmetric:
+2026-01-27 23:10:25,892 - INFO -     Violations: 20 (Expected: 12.58)
+2026-01-27 23:10:25,892 - INFO -     Violation Rate: 1.59% (Expected: 1.00%)
+2026-01-27 23:10:25,892 - INFO -     LR_UC Statistic: 3.7493
+2026-01-27 23:10:25,892 - INFO -     p-value: 0.0528
+2026-01-27 23:10:25,892 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,892 - INFO - 
+  GARCH:
+2026-01-27 23:10:25,892 - INFO -     Violations: 26 (Expected: 12.58)
+2026-01-27 23:10:25,892 - INFO -     Violation Rate: 2.07% (Expected: 1.00%)
+2026-01-27 23:10:25,892 - INFO -     LR_UC Statistic: 11.0565
+2026-01-27 23:10:25,892 - INFO -     p-value: 0.0009
+2026-01-27 23:10:25,892 - INFO -     Reject H0 (p < 0.05): True
+2026-01-27 23:10:25,892 - INFO - 
+  ARCH:
+2026-01-27 23:10:25,892 - INFO -     Violations: 30 (Expected: 12.58)
+2026-01-27 23:10:25,892 - INFO -     Violation Rate: 2.38% (Expected: 1.00%)
+2026-01-27 23:10:25,892 - INFO -     LR_UC Statistic: 17.5501
+2026-01-27 23:10:25,892 - INFO -     p-value: 0.0000
+2026-01-27 23:10:25,892 - INFO -     Reject H0 (p < 0.05): True
+2026-01-27 23:10:25,892 - INFO - 
+  Threshold_GARCH:
+2026-01-27 23:10:25,892 - INFO -     Violations: 27 (Expected: 12.58)
+2026-01-27 23:10:25,892 - INFO -     Violation Rate: 2.15% (Expected: 1.00%)
+2026-01-27 23:10:25,892 - INFO -     LR_UC Statistic: 12.5690
+2026-01-27 23:10:25,892 - INFO -     p-value: 0.0004
+2026-01-27 23:10:25,892 - INFO -     Reject H0 (p < 0.05): True
+2026-01-27 23:10:25,893 - INFO - 
+  GARCH_X:
+2026-01-27 23:10:25,893 - INFO -     Violations: 26 (Expected: 12.58)
+2026-01-27 23:10:25,893 - INFO -     Violation Rate: 2.07% (Expected: 1.00%)
+2026-01-27 23:10:25,893 - INFO -     LR_UC Statistic: 11.0565
+2026-01-27 23:10:25,893 - INFO -     p-value: 0.0009
+2026-01-27 23:10:25,893 - INFO -     Reject H0 (p < 0.05): True
+2026-01-27 23:10:25,893 - INFO - 
+
+A1.8 Christoffersen Independence (Ind) Test:
+2026-01-27 23:10:25,893 - INFO - H0: VaR violations are independently distributed (no clustering)
+2026-01-27 23:10:25,893 - INFO - 
+--- 90% Confidence Level ---
+2026-01-27 23:10:25,893 - INFO - 
+  Historical_Variance:
+2026-01-27 23:10:25,893 - INFO -     Transitions 00 (No violation -> No violation): 1057
+2026-01-27 23:10:25,893 - INFO -     Transitions 01 (No violation -> Violation): 93
+2026-01-27 23:10:25,893 - INFO -     Transitions 10 (Violation -> No violation): 93
+2026-01-27 23:10:25,893 - INFO -     Transitions 11 (Violation -> Violation): 14
+2026-01-27 23:10:25,893 - INFO -     Total Violations: 107
+2026-01-27 23:10:25,893 - INFO -     LR_Ind Statistic: 2.7731
+2026-01-27 23:10:25,893 - INFO -     p-value: 0.0959
+2026-01-27 23:10:25,893 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,893 - INFO - 
+  Riskmetric:
+2026-01-27 23:10:25,893 - INFO -     Transitions 00 (No violation -> No violation): 1063
+2026-01-27 23:10:25,893 - INFO -     Transitions 01 (No violation -> Violation): 92
+2026-01-27 23:10:25,893 - INFO -     Transitions 10 (Violation -> No violation): 92
+2026-01-27 23:10:25,893 - INFO -     Transitions 11 (Violation -> Violation): 10
+2026-01-27 23:10:25,893 - INFO -     Total Violations: 102
+2026-01-27 23:10:25,893 - INFO -     LR_Ind Statistic: 0.4027
+2026-01-27 23:10:25,894 - INFO -     p-value: 0.5257
+2026-01-27 23:10:25,894 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,894 - INFO - 
+  GARCH:
+2026-01-27 23:10:25,894 - INFO -     Transitions 00 (No violation -> No violation): 1063
+2026-01-27 23:10:25,894 - INFO -     Transitions 01 (No violation -> Violation): 92
+2026-01-27 23:10:25,894 - INFO -     Transitions 10 (Violation -> No violation): 92
+2026-01-27 23:10:25,894 - INFO -     Transitions 11 (Violation -> Violation): 10
+2026-01-27 23:10:25,894 - INFO -     Total Violations: 102
+2026-01-27 23:10:25,894 - INFO -     LR_Ind Statistic: 0.4027
+2026-01-27 23:10:25,894 - INFO -     p-value: 0.5257
+2026-01-27 23:10:25,894 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,894 - INFO - 
+  ARCH:
+2026-01-27 23:10:25,894 - INFO -     Transitions 00 (No violation -> No violation): 1026
+2026-01-27 23:10:25,894 - INFO -     Transitions 01 (No violation -> Violation): 112
+2026-01-27 23:10:25,894 - INFO -     Transitions 10 (Violation -> No violation): 112
+2026-01-27 23:10:25,894 - INFO -     Transitions 11 (Violation -> Violation): 7
+2026-01-27 23:10:25,894 - INFO -     Total Violations: 119
+2026-01-27 23:10:25,894 - INFO -     LR_Ind Statistic: 2.2206
+2026-01-27 23:10:25,894 - INFO -     p-value: 0.1362
+2026-01-27 23:10:25,894 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,894 - INFO - 
+  Threshold_GARCH:
+2026-01-27 23:10:25,894 - INFO -     Transitions 00 (No violation -> No violation): 1059
+2026-01-27 23:10:25,894 - INFO -     Transitions 01 (No violation -> Violation): 95
+2026-01-27 23:10:25,894 - INFO -     Transitions 10 (Violation -> No violation): 95
+2026-01-27 23:10:25,894 - INFO -     Transitions 11 (Violation -> Violation): 8
+2026-01-27 23:10:25,894 - INFO -     Total Violations: 103
+2026-01-27 23:10:25,894 - INFO -     LR_Ind Statistic: 0.0276
+2026-01-27 23:10:25,894 - INFO -     p-value: 0.8680
+2026-01-27 23:10:25,894 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,894 - INFO - 
+  GARCH_X:
+2026-01-27 23:10:25,894 - INFO -     Transitions 00 (No violation -> No violation): 1063
+2026-01-27 23:10:25,894 - INFO -     Transitions 01 (No violation -> Violation): 92
+2026-01-27 23:10:25,895 - INFO -     Transitions 10 (Violation -> No violation): 92
+2026-01-27 23:10:25,895 - INFO -     Transitions 11 (Violation -> Violation): 10
+2026-01-27 23:10:25,895 - INFO -     Total Violations: 102
+2026-01-27 23:10:25,895 - INFO -     LR_Ind Statistic: 0.4027
+2026-01-27 23:10:25,895 - INFO -     p-value: 0.5257
+2026-01-27 23:10:25,895 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,895 - INFO - 
+--- 95% Confidence Level ---
+2026-01-27 23:10:25,895 - INFO - 
+  Historical_Variance:
+2026-01-27 23:10:25,895 - INFO -     Transitions 00 (No violation -> No violation): 1128
+2026-01-27 23:10:25,895 - INFO -     Transitions 01 (No violation -> Violation): 61
+2026-01-27 23:10:25,895 - INFO -     Transitions 10 (Violation -> No violation): 61
+2026-01-27 23:10:25,895 - INFO -     Transitions 11 (Violation -> Violation): 7
+2026-01-27 23:10:25,895 - INFO -     Total Violations: 68
+2026-01-27 23:10:25,895 - INFO -     LR_Ind Statistic: 2.7234
+2026-01-27 23:10:25,895 - INFO -     p-value: 0.0989
+2026-01-27 23:10:25,895 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,895 - INFO - 
+  Riskmetric:
+2026-01-27 23:10:25,895 - INFO -     Transitions 00 (No violation -> No violation): 1138
+2026-01-27 23:10:25,895 - INFO -     Transitions 01 (No violation -> Violation): 57
+2026-01-27 23:10:25,895 - INFO -     Transitions 10 (Violation -> No violation): 57
+2026-01-27 23:10:25,895 - INFO -     Transitions 11 (Violation -> Violation): 5
+2026-01-27 23:10:25,895 - INFO -     Total Violations: 62
+2026-01-27 23:10:25,895 - INFO -     LR_Ind Statistic: 1.1654
+2026-01-27 23:10:25,895 - INFO -     p-value: 0.2804
+2026-01-27 23:10:25,895 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,896 - INFO - 
+  GARCH:
+2026-01-27 23:10:25,896 - INFO -     Transitions 00 (No violation -> No violation): 1125
+2026-01-27 23:10:25,896 - INFO -     Transitions 01 (No violation -> Violation): 64
+2026-01-27 23:10:25,896 - INFO -     Transitions 10 (Violation -> No violation): 64
+2026-01-27 23:10:25,896 - INFO -     Transitions 11 (Violation -> Violation): 4
+2026-01-27 23:10:25,896 - INFO -     Total Violations: 68
+2026-01-27 23:10:25,896 - INFO -     LR_Ind Statistic: 0.0306
+2026-01-27 23:10:25,896 - INFO -     p-value: 0.8611
+2026-01-27 23:10:25,896 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,896 - INFO - 
+  ARCH:
+2026-01-27 23:10:25,896 - INFO -     Transitions 00 (No violation -> No violation): 1125
+2026-01-27 23:10:25,896 - INFO -     Transitions 01 (No violation -> Violation): 65
+2026-01-27 23:10:25,896 - INFO -     Transitions 10 (Violation -> No violation): 65
+2026-01-27 23:10:25,896 - INFO -     Transitions 11 (Violation -> Violation): 2
+2026-01-27 23:10:25,896 - INFO -     Total Violations: 67
+2026-01-27 23:10:25,896 - INFO -     LR_Ind Statistic: 0.9028
+2026-01-27 23:10:25,896 - INFO -     p-value: 0.3420
+2026-01-27 23:10:25,896 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,896 - INFO - 
+  Threshold_GARCH:
+2026-01-27 23:10:25,896 - INFO -     Transitions 00 (No violation -> No violation): 1125
+2026-01-27 23:10:25,896 - INFO -     Transitions 01 (No violation -> Violation): 64
+2026-01-27 23:10:25,896 - INFO -     Transitions 10 (Violation -> No violation): 64
+2026-01-27 23:10:25,896 - INFO -     Transitions 11 (Violation -> Violation): 4
+2026-01-27 23:10:25,896 - INFO -     Total Violations: 68
+2026-01-27 23:10:25,896 - INFO -     LR_Ind Statistic: 0.0306
+2026-01-27 23:10:25,896 - INFO -     p-value: 0.8611
+2026-01-27 23:10:25,896 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,896 - INFO - 
+  GARCH_X:
+2026-01-27 23:10:25,896 - INFO -     Transitions 00 (No violation -> No violation): 1125
+2026-01-27 23:10:25,896 - INFO -     Transitions 01 (No violation -> Violation): 64
+2026-01-27 23:10:25,896 - INFO -     Transitions 10 (Violation -> No violation): 64
+2026-01-27 23:10:25,896 - INFO -     Transitions 11 (Violation -> Violation): 4
+2026-01-27 23:10:25,896 - INFO -     Total Violations: 68
+2026-01-27 23:10:25,896 - INFO -     LR_Ind Statistic: 0.0306
+2026-01-27 23:10:25,896 - INFO -     p-value: 0.8611
+2026-01-27 23:10:25,896 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,896 - INFO - 
+--- 99% Confidence Level ---
+2026-01-27 23:10:25,897 - INFO - 
+  Historical_Variance:
+2026-01-27 23:10:25,897 - INFO -     Transitions 00 (No violation -> No violation): 1202
+2026-01-27 23:10:25,897 - INFO -     Transitions 01 (No violation -> Violation): 26
+2026-01-27 23:10:25,897 - INFO -     Transitions 10 (Violation -> No violation): 26
+2026-01-27 23:10:25,897 - INFO -     Transitions 11 (Violation -> Violation): 3
+2026-01-27 23:10:25,897 - INFO -     Total Violations: 29
+2026-01-27 23:10:25,897 - INFO -     LR_Ind Statistic: 4.7402
+2026-01-27 23:10:25,897 - INFO -     p-value: 0.0295
+2026-01-27 23:10:25,897 - INFO -     Reject H0 (p < 0.05): True
+2026-01-27 23:10:25,897 - INFO - 
+  Riskmetric:
+2026-01-27 23:10:25,897 - INFO -     Transitions 00 (No violation -> No violation): 1217
+2026-01-27 23:10:25,897 - INFO -     Transitions 01 (No violation -> Violation): 20
+2026-01-27 23:10:25,897 - INFO -     Transitions 10 (Violation -> No violation): 20
+2026-01-27 23:10:25,897 - INFO -     Transitions 11 (Violation -> Violation): 0
+2026-01-27 23:10:25,897 - INFO -     Total Violations: 20
+2026-01-27 23:10:25,897 - INFO -     LR_Ind Statistic: 0.6468
+2026-01-27 23:10:25,897 - INFO -     p-value: 0.4213
+2026-01-27 23:10:25,897 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,897 - INFO - 
+  GARCH:
+2026-01-27 23:10:25,897 - INFO -     Transitions 00 (No violation -> No violation): 1205
+2026-01-27 23:10:25,897 - INFO -     Transitions 01 (No violation -> Violation): 26
+2026-01-27 23:10:25,897 - INFO -     Transitions 10 (Violation -> No violation): 26
+2026-01-27 23:10:25,897 - INFO -     Transitions 11 (Violation -> Violation): 0
+2026-01-27 23:10:25,897 - INFO -     Total Violations: 26
+2026-01-27 23:10:25,897 - INFO -     LR_Ind Statistic: 1.0984
+2026-01-27 23:10:25,897 - INFO -     p-value: 0.2946
+2026-01-27 23:10:25,897 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,897 - INFO - 
+  ARCH:
+2026-01-27 23:10:25,897 - INFO -     Transitions 00 (No violation -> No violation): 1197
+2026-01-27 23:10:25,897 - INFO -     Transitions 01 (No violation -> Violation): 30
+2026-01-27 23:10:25,897 - INFO -     Transitions 10 (Violation -> No violation): 30
+2026-01-27 23:10:25,897 - INFO -     Transitions 11 (Violation -> Violation): 0
+2026-01-27 23:10:25,897 - INFO -     Total Violations: 30
+2026-01-27 23:10:25,897 - INFO -     LR_Ind Statistic: 1.4671
+2026-01-27 23:10:25,898 - INFO -     p-value: 0.2258
+2026-01-27 23:10:25,898 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,898 - INFO - 
+  Threshold_GARCH:
+2026-01-27 23:10:25,898 - INFO -     Transitions 00 (No violation -> No violation): 1203
+2026-01-27 23:10:25,898 - INFO -     Transitions 01 (No violation -> Violation): 27
+2026-01-27 23:10:25,898 - INFO -     Transitions 10 (Violation -> No violation): 27
+2026-01-27 23:10:25,898 - INFO -     Transitions 11 (Violation -> Violation): 0
+2026-01-27 23:10:25,898 - INFO -     Total Violations: 27
+2026-01-27 23:10:25,898 - INFO -     LR_Ind Statistic: 1.1855
+2026-01-27 23:10:25,898 - INFO -     p-value: 0.2762
+2026-01-27 23:10:25,898 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,898 - INFO - 
+  GARCH_X:
+2026-01-27 23:10:25,898 - INFO -     Transitions 00 (No violation -> No violation): 1205
+2026-01-27 23:10:25,898 - INFO -     Transitions 01 (No violation -> Violation): 26
+2026-01-27 23:10:25,898 - INFO -     Transitions 10 (Violation -> No violation): 26
+2026-01-27 23:10:25,898 - INFO -     Transitions 11 (Violation -> Violation): 0
+2026-01-27 23:10:25,898 - INFO -     Total Violations: 26
+2026-01-27 23:10:25,898 - INFO -     LR_Ind Statistic: 1.0984
+2026-01-27 23:10:25,898 - INFO -     p-value: 0.2946
+2026-01-27 23:10:25,898 - INFO -     Reject H0 (p < 0.05): False
+2026-01-27 23:10:25,898 - INFO - 
+
+A1.8 Note: Reject H0 at 5% significance level means the model's VaR estimates
+2026-01-27 23:10:25,898 - INFO -       fail the UC test (incorrect coverage) or Ind test (violations clustered).
