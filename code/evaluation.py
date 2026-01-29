@@ -100,15 +100,6 @@ def calculate_MSPE(actual, predicted, model_name=None):
 def calculate_var_estimates(returns, volatility_forecasts, confidence_levels=[0.90, 0.95, 0.99]):
     """
     Calculate 1-day ahead Value-at-Risk (VaR) estimates.
-    
-    Parameters:
-    returns : array-like
-        Daily returns (realized)
-    volatility_forecasts : dict
-        Dictionary with model names as keys and volatility forecasts as values
-    confidence_levels : list
-        List of confidence levels (e.g., [0.90, 0.95, 0.99])
-    dict : VaR estimates for each model and confidence level
     """
     returns = np.array(returns)
     # Convert variance to volatility by taking square root
@@ -118,11 +109,22 @@ def calculate_var_estimates(returns, volatility_forecasts, confidence_levels=[0.
 
     for confidence in confidence_levels:
         var_estimates[confidence] = {}
-        z_score = stats.norm.ppf(1 - confidence)  # Left tail (negative for losses)
+        z_score= stats.norm.ppf(1 - confidence)  # Left tail (negative for losses)
+        
+        # DEBUG: Check z-scores
+        logging.info(f"DEBUG: Confidence {confidence*100:.0f}% -> z_score = {z_score:.4f}")
         
         for model_name, volatility in volatility_forecasts.items():
             # VaR = mean + z_score * volatility (assuming mean ≈ 0 for daily returns)
             var = z_score * volatility
+            
+            # DEBUG: Check VaR values
+            if model_name == 'GARCH':
+                logging.info(f"  DEBUG {model_name}: mean volatility = {np.mean(volatility):.4f}")
+                logging.info(f"  DEBUG {model_name}: mean VaR = {np.mean(var):.4f}")
+                logging.info(f"  DEBUG {model_name}: min VaR = {np.min(var):.4f}")
+                logging.info(f"  DEBUG {model_name}: max VaR = {np.max(var):.4f}")
+            
             var_estimates[confidence][model_name] = var
     
     return var_estimates
@@ -130,21 +132,13 @@ def calculate_var_estimates(returns, volatility_forecasts, confidence_levels=[0.
 
 def calculate_var_violations(returns, var_estimates, confidence_levels=[0.90, 0.95, 0.99]):
     """
-    Calculate VaR violations (backtesting) - count when returns breach VaR estimates.
-    
-    Parameters:
-    returns : array-like
-        Daily returns
-    var_estimates : dict
-        VaR estimates from calculate_var_estimates
-    confidence_levels : list
-        List of confidence levels
-    
-    Returns:
-    dict : Violation counts and rates for each model and confidence level
+    Calculate VaR violations (backtesting)
     """
     returns = np.array(returns)
     violations = {}
+    
+    # DEBUG: Check returns
+    logging.info(f"\nDEBUG Returns: mean={np.mean(returns):.4f}, min={np.min(returns):.4f}, max={np.max(returns):.4f}")
     
     for confidence in confidence_levels:
         violations[confidence] = {}
@@ -154,6 +148,19 @@ def calculate_var_violations(returns, var_estimates, confidence_levels=[0.90, 0.
             var_forecast = np.array(var_forecast)
             # Count violations: where returns < VaR (losses exceed VaR)
             breaches = np.sum(returns < var_forecast)
+            
+            # DEBUG
+            if model_name == 'GARCH':
+                logging.info(f"\nDEBUG {confidence*100:.0f}% {model_name}:")
+                logging.info(f"  Mean VaR: {np.mean(var_forecast):.4f}")
+                logging.info(f"  Violations: {breaches} / {len(returns)} ({breaches/len(returns)*100:.2f}%)")
+                logging.info(f"  Expected: {expected_violations:.1f} ({(1-confidence)*100:.2f}%)")
+                
+                # Show some examples
+                logging.info(f"  First 5 returns: {returns[:5]}")
+                logging.info(f"  First 5 VaRs: {var_forecast[:5]}")
+                logging.info(f"  Violations in first 5: {np.sum(returns[:5] < var_forecast[:5])}")
+            
             violation_rate = breaches / len(returns)
             expected_rate = 1 - confidence
             

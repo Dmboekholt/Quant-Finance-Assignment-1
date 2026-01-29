@@ -93,6 +93,12 @@ def main():
                              standardised_returns_skew, standardised_returns_jarque_bera_test, 
                              prefix="A1.1.4", variable_name="Standardised Returns")
     plot_histogram(standardised_returns, 'Histogram of Standardised Returns', 'Standardised Returns', 'Density', os.path.join(PLOTS_DIR, 'A1.1.4.png'), mean=standardised_returns_mean)
+    # ACF/PACF of standardised returns
+    acf_std, pacf_std = summary_autocorrelation_assessment(standardised_returns)
+    logging.info(f"A1.1.4 ACF values of Standardised Returns: {acf_std}")
+    logging.info(f"A1.1.4 PACF values of Standardised Returns: {pacf_std}")
+    plot_acf(standardised_returns, 'ACF of Standardised Returns', 'Lags', 'ACF', os.path.join(PLOTS_DIR, 'A1.1.4_ACF_Standardised_Returns.png'), lags=20)
+    plot_pacf(standardised_returns, 'PACF of Standardised Returns', 'Lags', 'PACF', os.path.join(PLOTS_DIR, 'A1.1.4_PACF_Standardised_Returns.png'), lags=20)
 
 
 
@@ -130,6 +136,26 @@ def main():
     plot_acf(log_realised_variance, 'ACF of Log Realised Variance', 'Lags', 'ACF', os.path.join(PLOTS_DIR, 'A1.1.8_ACF_Log_Realised_Variance.png'), lags=20)
     plot_pacf(log_realised_variance, 'PACF of Log Realised Variance', 'Lags', 'PACF', os.path.join(PLOTS_DIR, 'A1.1.8_PACF_Log_Realised_Variance.png'), lags=20)
 
+    # A1.1.9 Compare squared returns vs realised variance (distribution + dynamics)
+    squared_returns_mean, squared_returns_std, squared_returns_kurtosis, squared_returns_skew, jb_sq, acf_sq, pacf_sq = summary_normality_assessment(squared_returns)
+    logging.info(f"A1.1.9 Squared Returns stats: mean={squared_returns_mean:.6f}, std={squared_returns_std:.6f}, skew={squared_returns_skew:.6f}, kurtosis={squared_returns_kurtosis:.6f}")
+    logging.info(f"A1.1.9 ACF squared returns: {acf_sq}")
+    logging.info(f"A1.1.9 PACF squared returns: {pacf_sq}")
+    plot_histogram(squared_returns, 'Histogram of Squared Returns', 'Squared Returns', 'Density', os.path.join(PLOTS_DIR, 'A1.1.9_Hist_Squared_Returns.png'), mean=squared_returns_mean)
+    plot_acf(squared_returns, 'ACF of Squared Returns', 'Lags', 'ACF', os.path.join(PLOTS_DIR, 'A1.1.9_ACF_Squared_Returns.png'), lags=20)
+    plot_pacf(squared_returns, 'PACF of Squared Returns', 'Lags', 'PACF', os.path.join(PLOTS_DIR, 'A1.1.9_PACF_Squared_Returns.png'), lags=20)
+
+    # Overlay comparison plot: squared returns vs realised variance
+    plot_multiple_timeseries(
+        [squared_returns.values, df['RV'].values],
+        ['Squared Returns', 'Realised Variance'],
+        'Squared Returns vs Realised Variance',
+        'Date',
+        'Value',
+        os.path.join(PLOTS_DIR, 'A1.1.9_Squared_Returns_vs_RV.png'),
+        x_data=df['DATE'].values
+    )
+
 
     #----------------------------------------#
     # A1.2 Historical Volatility
@@ -153,8 +179,6 @@ def main():
     logging.info(f"A1.2 Std Historical Variance for T=250: {std_historical_variance[252]:.6f}")
 
     # A1.2.1 Plot Historical Variance
-    # Align all series to start from index 250 (latest start) for comparison
-    # T=63: skip first (250-63)=187 elements, T=125: skip first (250-125)=125 elements, T=250: use all
     plot_multiple_timeseries(
         [historical_variance[63][252-63:], historical_variance[126][252-126:], historical_variance[252]],
         ['Historical Variance for T=63', 'Historical Variance for T=125', 'Historical Variance for T=250'],
@@ -179,7 +203,7 @@ def main():
     # A1.3.2 Initialise Riskmetric Volatility
     riskmetric_volatility = [sigma_0]
     for t in range(63, len(df['R'])):  # t=63 corresponds to first day after sigma_0
-        var_t = lambda_ * riskmetric_volatility[-1] + (1 - lambda_) * df['R'].iloc[t]**2
+        var_t = lambda_ * riskmetric_volatility[-1] + (1 - lambda_) * df['R'].iloc[t-1]**2
         riskmetric_volatility.append(var_t)
     
     # A1.3.3 Calculate Mean and Std of Riskmetric Volatility
@@ -401,19 +425,54 @@ def main():
         t_stat = delta / std_errors[4]
         logging.info(f"  Delta t-statistic: {t_stat:.3f} (significant if |t| > 1.96)")
 
-    # A1.6.3 - Inspect models for  Dec 2018 return
-    logging.info(f"A1.6.3 Log 26 Jan 2016 return: {df[df['DATE'] == '2016-01-26']['R'].values[0]:.6f}")
-    Garch_conditional_volatility_26_Jan_2016 = threshold_garch_result.conditional_volatility[df[df['DATE'] == '2016-01-26'].index[0]]
-    Threshold_Garch_conditional_volatility_26_Jan_2016 = threshold_garch_result.conditional_volatility[df[df['DATE'] == '2016-01-26'].index[0]]
-    logging.info(f"A1.6.3 Threshold Garch Conditional Volatility 26 Jan 2016: {Threshold_Garch_conditional_volatility_26_Jan_2016:.6f}")
-    logging.info(f"A1.6.3 Garch Conditional Volatility 26 Jan 2016: {Garch_conditional_volatility_26_Jan_2016:.6f}")
+    # A1.6.3 - Inspect models for key return dates (no helper definition)
+    garchx_sigma2_series = pd.Series(sigma2, index=data.index)
 
-    # A1.6.3 - Inspect models for 14 Dec 2018 return
-    logging.info(f"A1.6.3 Log 14 Dec 2018 return: {df[df['DATE'] == '2018-12-14']['R'].values[0]:.6f}")
-    Garch_conditional_volatility_14_Dec_2018 = threshold_garch_result.conditional_volatility[df[df['DATE'] == '2018-12-14'].index[0]]
-    Threshold_Garch_conditional_volatility_14_Dec_2018 = threshold_garch_result.conditional_volatility[df[df['DATE'] == '2018-12-14'].index[0]]
-    logging.info(f"A1.6.3 Threshold Garch Conditional Volatility 14 Dec 2018: {Threshold_Garch_conditional_volatility_14_Dec_2018:.6f}")
-    logging.info(f"A1.6.3 Garch Conditional Volatility 14 Dec 2018: {Garch_conditional_volatility_14_Dec_2018:.6f}")
+    # 26 Jan 2016 (largest positive return)
+    idx_2016 = df[df['DATE'] == '2016-01-26'].index[0]
+    ret_2016 = df.loc[idx_2016, 'R']
+    rv_2016 = df.loc[idx_2016, 'RV']
+    garch_var_2016 = result_garch.conditional_volatility[idx_2016]**2 if idx_2016 < len(result_garch.conditional_volatility) else np.nan
+    tgarch_var_2016 = threshold_garch_result.conditional_volatility[idx_2016]**2 if idx_2016 < len(threshold_garch_result.conditional_volatility) else np.nan
+    garchx_var_2016 = garchx_sigma2_series.loc[idx_2016] if idx_2016 in garchx_sigma2_series.index else np.nan
+    logging.info(f"A1.6.3 Date: 2016-01-26 | Return: {ret_2016:.6f} | RV: {rv_2016:.6f}")
+    logging.info(f"  GARCH variance: {garch_var_2016:.6f}")
+    logging.info(f"  Threshold GARCH variance: {tgarch_var_2016:.6f}")
+    logging.info(f"  GARCH-X variance: {garchx_var_2016:.6f}")
+
+    # 14 Dec 2018 (largest negative return)
+    idx_2018 = df[df['DATE'] == '2018-12-14'].index[0]
+    ret_2018 = df.loc[idx_2018, 'R']
+    rv_2018 = df.loc[idx_2018, 'RV']
+    garch_var_2018 = result_garch.conditional_volatility[idx_2018]**2 if idx_2018 < len(result_garch.conditional_volatility) else np.nan
+    tgarch_var_2018 = threshold_garch_result.conditional_volatility[idx_2018]**2 if idx_2018 < len(threshold_garch_result.conditional_volatility) else np.nan
+    garchx_var_2018 = garchx_sigma2_series.loc[idx_2018] if idx_2018 in garchx_sigma2_series.index else np.nan
+    logging.info(f"A1.6.3 Date: 2018-12-14 | Return: {ret_2018:.6f} | RV: {rv_2018:.6f}")
+    logging.info(f"  GARCH variance: {garch_var_2018:.6f}")
+    logging.info(f"  Threshold GARCH variance: {tgarch_var_2018:.6f}")
+    logging.info(f"  GARCH-X variance: {garchx_var_2018:.6f}")
+
+    # Plot small windows around the key dates to compare model variances
+    window_days = 5  # use ±5 trading days for context
+    for event_label, center_idx in [('2016-01-26', idx_2016), ('2018-12-14', idx_2018)]:
+        start_idx = max(0, center_idx - window_days)
+        end_idx = min(len(df), center_idx + window_days + 1)
+        dates_window = df['DATE'].iloc[start_idx:end_idx].values
+
+        garch_win = result_garch.conditional_volatility[start_idx:end_idx]**2
+        tgarch_win = threshold_garch_result.conditional_volatility[start_idx:end_idx]**2
+        garchx_win = garchx_sigma2_series.reindex(df.index[start_idx:end_idx]).values
+        rv_win = df['RV'].iloc[start_idx:end_idx].values
+
+        plot_multiple_timeseries(
+            [rv_win, garch_win, tgarch_win, garchx_win],
+            ['Realised Variance', 'GARCH variance', 'Threshold GARCH variance', 'GARCH-X variance'],
+            f'Variance Around {event_label}',
+            'Date',
+            'Variance',
+            os.path.join(PLOTS_DIR, f'A1.6_Event_Window_{event_label}.png'),
+            x_data=dates_window
+        )
 
 
     #----------------------------------------#
@@ -751,5 +810,3 @@ if __name__ == "__main__":
     setup_logging()
     # Run main function
     main()
-
-
