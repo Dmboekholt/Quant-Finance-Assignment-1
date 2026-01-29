@@ -136,33 +136,33 @@ def main():
     #----------------------------------------#
     logging.info("\n----------------------------------------\n A1.2 Historical Volatility \n----------------------------------------")
 
-    T = [63, 125, 250]
-    historical_variance = {63: [], 125: [], 250: []}
+    T = [63, 126, 252]  
+    historical_variance = {63: [], 126: [], 252: []} 
     for i in T:
         for j in range(i, len(df['R'])):
             returns_window = df['R'].iloc[j-i:j].values
             var_t = np.mean(returns_window**2)
             historical_variance[i].append(var_t)
-    mean_historical_variance = {63: np.mean(historical_variance[63]), 125: np.mean(historical_variance[125]), 250: np.mean(historical_variance[250])}
-    std_historical_variance = {63: np.std(historical_variance[63]), 125: np.std(historical_variance[125]), 250: np.std(historical_variance[250])}
+    mean_historical_variance = {63: np.mean(historical_variance[63]), 126: np.mean(historical_variance[126]), 252: np.mean(historical_variance[252])}
+    std_historical_variance = {63: np.std(historical_variance[63]), 126: np.std(historical_variance[126]), 252: np.std(historical_variance[252])}
     logging.info(f"A1.2 Mean Historical Variance for T=63: {mean_historical_variance[63]:.6f}")
-    logging.info(f"A1.2 Mean Historical Variance for T=125: {mean_historical_variance[125]:.6f}")
-    logging.info(f"A1.2 Mean Historical Variance for T=250: {mean_historical_variance[250]:.6f}")
+    logging.info(f"A1.2 Mean Historical Variance for T=125: {mean_historical_variance[126]:.6f}")
+    logging.info(f"A1.2 Mean Historical Variance for T=250: {mean_historical_variance[252]:.6f}")
     logging.info(f"A1.2 Std Historical Variance for T=63: {std_historical_variance[63]:.6f}")
-    logging.info(f"A1.2 Std Historical Variance for T=125: {std_historical_variance[125]:.6f}")
-    logging.info(f"A1.2 Std Historical Variance for T=250: {std_historical_variance[250]:.6f}")
+    logging.info(f"A1.2 Std Historical Variance for T=125: {std_historical_variance[126]:.6f}")
+    logging.info(f"A1.2 Std Historical Variance for T=250: {std_historical_variance[252]:.6f}")
 
     # A1.2.1 Plot Historical Variance
     # Align all series to start from index 250 (latest start) for comparison
     # T=63: skip first (250-63)=187 elements, T=125: skip first (250-125)=125 elements, T=250: use all
     plot_multiple_timeseries(
-        [historical_variance[63][250-63:], historical_variance[125][250-125:], historical_variance[250]],
+        [historical_variance[63][252-63:], historical_variance[126][252-126:], historical_variance[252]],
         ['Historical Variance for T=63', 'Historical Variance for T=125', 'Historical Variance for T=250'],
         'Historical Variance',
         'Date',
         'Variance',
         os.path.join(PLOTS_DIR, 'A1.2.1_Historical_Variance.png'),
-        x_data=df['DATE'].iloc[250:].values
+        x_data=df['DATE'].iloc[252:].values
     )
 
     #----------------------------------------#
@@ -420,51 +420,74 @@ def main():
     # A1.7 Forecasting Volatility
     #----------------------------------------#
     logging.info("\n----------------------------------------\n A1.7 Forecasting Volatility \n----------------------------------------")
+
     forecast_period = df['R'].iloc[1258:]
     logging.info(f"A1.7.1 Forecast Period: {forecast_period.shape[0]} observations")
     variance_proxy = df['R'].iloc[1258:]**2
     logging.info(f"A1.7.1 Variance Proxy (Squared Returns): {variance_proxy.shape[0]} observations")
-    historical_var_forecast = historical_variance[63][1258-63:]
-    # Riskmetric Volatility - continue from where it ended
-    riskmetric_var_forecast = riskmetric_volatility[1+1258-63:]    
-    # For GARCH, ARCH, Threshold GARCH, and GARCHX models, generate rolling one-step-ahead forecasts
-    # by refitting for each day in the forecast period
+    historical_var_forecast = historical_variance[126][1258-126:]  
+    riskmetric_var_forecast = riskmetric_volatility[1+1258-63:]
     logging.info("Generating rolling one-step-ahead forecasts for GARCH models...")
-    
+
     # Use evaluate_models function to generate one-step-ahead forecasts
     forecasts = evaluate_models(variance_proxy, df, horizon=1)
     garch_var_forecast = forecasts['GARCH']
     arch_var_forecast = forecasts['ARCH']
     threshold_garch_var_forecast = forecasts['Threshold_GARCH']
     garchx_var_forecast = forecasts['GARCH_X']
-    
+
     # Calculate MSPE for each model using squared returns proxy
-    logging.info("\nA1.7.1 MSPE using Squared Returns as proxy:")
-    # Create forecasts dictionary for all models including non-GARCH models
+    logging.info("\n=== A1.7 Part 1: MSPE using Squared Returns as proxy ===")
+
+    # Create forecasts dictionary for all models
     all_forecasts = {
-        'Historical_Variance_T63': historical_var_forecast,
+        'Historical_Variance_T126': historical_var_forecast,
         'Riskmetric': riskmetric_var_forecast,
-        'GARCH': garch_var_forecast,
         'ARCH': arch_var_forecast,
+        'GARCH': garch_var_forecast,
         'Threshold_GARCH': threshold_garch_var_forecast,
         'GARCH_X': garchx_var_forecast
     }
+
+    mspe_results_squared = {}
     for model_name, predicted in all_forecasts.items():
-        calculate_MSPE(variance_proxy, predicted, model_name=model_name)
+        mspe = calculate_MSPE(variance_proxy, predicted, model_name=model_name)
+        mspe_results_squared[model_name] = mspe
+
+    # Rank models by MSPE
+    logging.info("\nRanking of models by MSPE (Squared Returns proxy):")
+    ranked_models = sorted(mspe_results_squared.items(), key=lambda x: x[1])
+    for rank, (model, mspe) in enumerate(ranked_models, 1):
+        logging.info(f"  {rank}. {model}: {mspe:.6f}")
 
     # Get realised variance for comparison
     variance_proxy_realised = df['RV'].iloc[1258:]
 
     # A1.7.2 Calculate MSPE using Realised Variance as proxy
-    logging.info("\nA1.7.2 MSPE using Realised Variance (RV) as proxy:")
-    for model_name, predicted in all_forecasts.items():
-        calculate_MSPE(variance_proxy_realised, predicted, model_name=f"{model_name} (RV)")
+    logging.info("\n=== A1.7 Part 2: MSPE using Realised Variance (RV) as proxy ===")
 
+    mspe_results_rv = {}
+    for model_name, predicted in all_forecasts.items():
+        mspe = calculate_MSPE(variance_proxy_realised, predicted, model_name=f"{model_name} (RV)")
+        mspe_results_rv[model_name] = mspe
+
+    # Rank models by MSPE with RV proxy
+    logging.info("\nRanking of models by MSPE (Realized Variance proxy):")
+    ranked_models_rv = sorted(mspe_results_rv.items(), key=lambda x: x[1])
+    for rank, (model, mspe) in enumerate(ranked_models_rv, 1):
+        logging.info(f"  {rank}. {model}: {mspe:.6f}")
+
+    # Compare rankings
+    logging.info("\n=== Comparison of Rankings ===")
+    logging.info("Differences in model rankings between proxies:")
+    for i, ((model1, _), (model2, _)) in enumerate(zip(ranked_models, ranked_models_rv), 1):
+        if model1 != model2:
+            logging.info(f"  Rank {i}: {model1} (Squared Returns) vs {model2} (RV)")
 
     # Plot all models together
     plot_multiple_timeseries(
         [
-            variance_proxy.values,
+            variance_proxy_realised.values,
             historical_var_forecast,
             riskmetric_var_forecast,
             garch_var_forecast,
@@ -473,119 +496,181 @@ def main():
             garchx_var_forecast
         ],
         [
-            'Realised Variance Proxy',
-            'Historical Variance T=63',
-            'Riskmetric Volatility',
-            'GARCH(1,1) Model',
-            'ARCH(1) Model',
-            'Threshold GARCH Model',
-            'GARCH-X Model'
+            'Realised Variance',
+            'Historical Variance T=126',
+            'Riskmetric',
+            'GARCH(1,1)',
+            'ARCH(1)',
+            'Threshold GARCH',
+            'GARCH-X'
         ],
-        'Forecasted Variances vs Realised Variance Proxy',
+        'Variance Forecasts vs Realised Variance (Full Forecast Period)',
         'Date',
         'Variance',
-        os.path.join(PLOTS_DIR, 'A1.7.1_Forecasted_Variances_vs_Realised_Variance_Proxy.png'),
+        os.path.join(PLOTS_DIR, 'A1.7_All_Forecasts_Full_Period.png'),
         x_data=df['DATE'].iloc[1258:].values
     )
-
-    # A1.7.2 Plot individual models with both variance proxies
-    # Historical Variance T=63
-    plot_multiple_timeseries(
-        [variance_proxy.values, variance_proxy_realised.values, historical_var_forecast],
-        ['Squared Returns Proxy', 'Realised Variance', 'Historical Variance T=63 Forecast'],
-        'Historical Variance T=63 vs Variance Proxies',
-        'Date', 'Variance',
-        os.path.join(PLOTS_DIR, 'A1.7.2_Historical_Variance_T63.png'),
-        x_data=df['DATE'].iloc[1258:].values
-    )
-    
-    # Riskmetric Volatility
-    plot_multiple_timeseries(
-        [variance_proxy.values, variance_proxy_realised.values, riskmetric_var_forecast],
-        ['Squared Returns Proxy', 'Realised Variance', 'Riskmetric Volatility Forecast'],
-        'Riskmetric Volatility vs Variance Proxies',
-        'Date', 'Variance',
-        os.path.join(PLOTS_DIR, 'A1.7.2_Riskmetric_Volatility.png'),
-        x_data=df['DATE'].iloc[1258:].values
-    )
-    
-    # GARCH(1,1) Model
-    plot_multiple_timeseries(
-        [variance_proxy.values, variance_proxy_realised.values, garch_var_forecast],
-        ['Squared Returns Proxy', 'Realised Variance', 'GARCH(1,1) Forecast'],
-        'GARCH(1,1) Model vs Variance Proxies',
-        'Date', 'Variance',
-        os.path.join(PLOTS_DIR, 'A1.7.2_GARCH_1_1_Model.png'),
-        x_data=df['DATE'].iloc[1258:].values
-    )
-    
-    # ARCH(1) Model
-    plot_multiple_timeseries(
-        [variance_proxy.values, variance_proxy_realised.values, arch_var_forecast],
-        ['Squared Returns Proxy', 'Realised Variance', 'ARCH(1) Forecast'],
-        'ARCH(1) Model vs Variance Proxies',
-        'Date', 'Variance',
-        os.path.join(PLOTS_DIR, 'A1.7.2_ARCH_1_Model.png'),
-        x_data=df['DATE'].iloc[1258:].values
-    )
-    
-    # Threshold GARCH Model
-    plot_multiple_timeseries(
-        [variance_proxy.values, variance_proxy_realised.values, threshold_garch_var_forecast],
-        ['Squared Returns Proxy', 'Realised Variance', 'Threshold GARCH Forecast'],
-        'Threshold GARCH Model vs Variance Proxies',
-        'Date', 'Variance',
-        os.path.join(PLOTS_DIR, 'A1.7.2_Threshold_GARCH_Model.png'),
-        x_data=df['DATE'].iloc[1258:].values
-    )
-    
-    # GARCH-X Model
-    plot_multiple_timeseries(
-        [variance_proxy.values, variance_proxy_realised.values, garchx_var_forecast],
-        ['Squared Returns Proxy', 'Realised Variance', 'GARCH-X Forecast'],
-        'GARCH-X Model vs Variance Proxies',
-        'Date', 'Variance',
-        os.path.join(PLOTS_DIR, 'A1.7.2_GARCH_X_Model.png'),
-        x_data=df['DATE'].iloc[1258:].values
-    )
-
 
     #----------------------------------------#
-    # A1.8 Value-at-Risk (VaR) Analysis with Christoffersen Tests
+    # A1.7 Part 3: January 9 - February 17, 2023 Analysis
     #----------------------------------------#
+    logging.info("\n=== A1.7 Part 3: Analysis of January 9 - February 17, 2023 ===")
 
-    logging.info("\n----------------------------------------\n A1.8 Value-at-Risk (VaR) Analysis \n----------------------------------------")
-    logging.info("A1.8 Constructing 1-day ahead VaR estimates at 90%, 95%, and 99% confidence levels")
-    # Prepare variance forecasts for VaR calculation (convert to dict with all 6 models)
+    # Find indices for this period
+    jan_start = df[df['DATE'] == '2023-01-09'].index[0]
+    feb_end = df[df['DATE'] == '2023-02-17'].index[0]
+
+    # Find January 24, 2023
+    jan_24_idx = df[df['DATE'] == '2023-01-24'].index[0]
+
+    logging.info(f"Period: {df['DATE'].iloc[jan_start]} to {df['DATE'].iloc[feb_end]}")
+    logging.info(f"Important date: January 24, 2023 (index {jan_24_idx})")
+    logging.info(f"Return on Jan 24, 2023: {df['R'].iloc[jan_24_idx]:.4f}%")
+    logging.info(f"Realized Variance on Jan 24, 2023: {df['RV'].iloc[jan_24_idx]:.4f}")
+
+    # Extract data for this period (relative to forecast period start at 1258)
+    period1_start_rel = jan_start - 1258
+    period1_end_rel = feb_end - 1258 + 1
+
+    period1_dates = df['DATE'].iloc[jan_start:feb_end+1].values
+    period1_rv = variance_proxy_realised.iloc[period1_start_rel:period1_end_rel].values
+    period1_garch = garch_var_forecast[period1_start_rel:period1_end_rel]
+    period1_tgarch = threshold_garch_var_forecast[period1_start_rel:period1_end_rel]
+    period1_garchx = garchx_var_forecast[period1_start_rel:period1_end_rel]
+
+    # Plot for January-February 2023 period
+    plot_multiple_timeseries(
+        [period1_rv, period1_garch, period1_tgarch, period1_garchx],
+        ['Realised Variance', 'GARCH(1,1)', 'Threshold GARCH', 'GARCH-X'],
+        'Variance Forecasts: January 9 - February 17, 2023\n(Around January 24, 2023 Event)',
+        'Date',
+        'Variance',
+        os.path.join(PLOTS_DIR, 'A1.7.3_Jan_Feb_2023_Period.png'),
+        x_data=period1_dates
+    )
+
+    logging.info(f"\nAnalysis around January 24, 2023:")
+    jan24_rel = jan_24_idx - 1258
+    for i in range(max(0, jan24_rel-2), min(len(garch_var_forecast), jan24_rel+5)):
+        date_idx = 1258 + i
+        logging.info(f"  {df['DATE'].iloc[date_idx]}: RV={variance_proxy_realised.iloc[i]:.4f}, "
+                    f"GARCH={garch_var_forecast[i]:.4f}, TGARCH={threshold_garch_var_forecast[i]:.4f}, "
+                    f"GARCHX={garchx_var_forecast[i]:.4f}")
+
+    #----------------------------------------#
+    # A1.7 Part 4: July 3 - August 11, 2023 Analysis
+    #----------------------------------------#
+    logging.info("\n=== A1.7 Part 4: Analysis of July 3 - August 11, 2023 ===")
+
+    # Find indices for this period
+    jul_start = df[df['DATE'] == '2023-07-03'].index[0]
+    aug_end = df[df['DATE'] == '2023-08-11'].index[0]
+
+    logging.info(f"Period: {df['DATE'].loc[jul_start]} to {df['DATE'].loc[aug_end]}")
+
+    # Extract data for this period
+    period2_start_rel = jul_start - 1258
+    period2_end_rel = aug_end - 1258 + 1
+
+    # Find day with highest return in this period
+    period2_returns = df['R'].loc[jul_start:aug_end]
+    max_return_idx = period2_returns.idxmax()  # DataFrame index
+    max_return_date = df.loc[max_return_idx, 'DATE']
+    max_return_value = df.loc[max_return_idx, 'R']
+
+    logging.info(f"Highest return in period: {max_return_value:.4f}% on {max_return_date}")
+    logging.info(f"Realized Variance on that day: {df.loc[max_return_idx, 'RV']:.4f}")
+
+    period2_dates = df['DATE'].loc[jul_start:aug_end].values
+    period2_rv = variance_proxy_realised.iloc[period2_start_rel:period2_end_rel].values
+    period2_garch = garch_var_forecast[period2_start_rel:period2_end_rel]
+    period2_tgarch = threshold_garch_var_forecast[period2_start_rel:period2_end_rel]
+    period2_garchx = garchx_var_forecast[period2_start_rel:period2_end_rel]
+
+    # Plot for July-August 2023 period
+    plot_multiple_timeseries(
+        [period2_rv, period2_garch, period2_tgarch, period2_garchx],
+        ['Realised Variance', 'GARCH(1,1)', 'Threshold GARCH', 'GARCH-X'],
+        f'Variance Forecasts: July 3 - August 11, 2023\n(Highest return: {max_return_value:.2f}% on {max_return_date})',
+        'Date',
+        'Variance',
+        os.path.join(PLOTS_DIR, 'A1.7.4_Jul_Aug_2023_Period.png'),
+        x_data=period2_dates
+    )
+
+    logging.info(f"\nAnalysis around highest return day ({max_return_date}):")
+    max_return_rel = int(max_return_idx) - 1258
+
+    for i in range(max(0, max_return_rel-2), min(len(garch_var_forecast), max_return_rel+5)):
+        date_idx = 1258 + i
+        logging.info(f"  {df['DATE'].loc[date_idx]}: RV={variance_proxy_realised.iloc[i]:.4f}, "
+                    f"GARCH={garch_var_forecast[i]:.4f}, TGARCH={threshold_garch_var_forecast[i]:.4f}, "
+                    f"GARCHX={garchx_var_forecast[i]:.4f}")
+
+    #----------------------------------------#
+    # A1.8 Value-at-Risk (VaR) Analysis
+    #----------------------------------------#
+    logging.info("\n========================================")
+    logging.info(" A1.8 Value-at-Risk (VaR) Analysis")
+    logging.info("========================================")
+
+    logging.info("\nConstructing 1-day ahead VaR estimates at 90%, 95%, and 99% confidence levels")
+    logging.info("for the period January 2, 2019 - December 31, 2023")
+
+    # Prepare variance forecasts for VaR calculation
     variance_forecasts_all = {
-        'Historical_Variance': historical_var_forecast,
+        'Historical_Variance_T126': historical_var_forecast,
         'Riskmetric': riskmetric_var_forecast,
-        'GARCH': garch_var_forecast,
         'ARCH': arch_var_forecast,
+        'GARCH': garch_var_forecast,
         'Threshold_GARCH': threshold_garch_var_forecast,
         'GARCH_X': garchx_var_forecast
     }
+
     # Calculate VaR estimates
     confidence_levels = [0.90, 0.95, 0.99]
     var_estimates = calculate_var_estimates(forecast_period.values, variance_forecasts_all, confidence_levels)
-    logging.info("A1.8 VaR estimates calculated for all models and confidence levels")
+    logging.info("✓ VaR estimates calculated for all models and confidence levels")
+
     # Calculate VaR violations (backtesting)
     var_violations = calculate_var_violations(forecast_period.values, var_estimates, confidence_levels)
+
     # Log VaR violation statistics
+    logging.info("\n" + "="*60)
+    logging.info("VaR VIOLATION STATISTICS")
+    logging.info("="*60)
+
     for confidence in confidence_levels:
-        logging.info(f"\nA1.8 VaR Violations at {confidence*100:.0f}% Confidence Level:")
-        logging.info(f"  Expected violation rate: {(1-confidence)*100:.2f}%")
+        logging.info(f"\n{'='*60}")
+        logging.info(f"  Confidence Level: {confidence*100:.0f}%")
+        logging.info(f"  Expected Violation Rate: {(1-confidence)*100:.2f}%")
+        logging.info(f"{'='*60}")
+        
         for model_name, stats_dict in var_violations[confidence].items():
-            logging.info(f"  {model_name}:")
-            logging.info(f"    Breaches: {stats_dict['breaches']:.0f} / {len(forecast_period)} (Rate: {stats_dict['violation_rate']*100:.2f}%)")
-    
+            actual_rate = stats_dict['violation_rate'] * 100
+            expected_rate = (1 - confidence) * 100
+            logging.info(f"\n  {model_name}:")
+            logging.info(f"    Violations: {stats_dict['breaches']:.0f} / {len(forecast_period)}")
+            logging.info(f"    Actual Rate: {actual_rate:.2f}%")
+            logging.info(f"    Expected Rate: {expected_rate:.2f}%")
+            logging.info(f"    Difference: {actual_rate - expected_rate:+.2f}%")
+
     # Christoffersen Unconditional Coverage (UC) Test
-    logging.info("\n\nA1.8 Christoffersen Unconditional Coverage (UC) Test:")
-    logging.info("H0: The number of VaR violations equals the expected number (correct coverage)")
-    
+    logging.info("\n" + "="*80)
+    logging.info("CHRISTOFFERSEN UNCONDITIONAL COVERAGE (UC) TEST")
+    logging.info("="*80)
+    logging.info("H0: The VaR model has correct unconditional coverage")
+    logging.info("    (observed violation rate = expected violation rate)")
+    logging.info("Reject H0 if p-value < 0.05 (model has incorrect coverage)\n")
+
+    uc_summary = {}
     for confidence in confidence_levels:
-        logging.info(f"\n--- {confidence*100:.0f}% Confidence Level ---")
+        logging.info(f"\n{'─'*80}")
+        logging.info(f"Confidence Level: {confidence*100:.0f}%")
+        logging.info(f"{'─'*80}")
+        
         uc_results = christoffersen_uc_test(forecast_period.values, var_estimates[confidence], confidence)
+        uc_summary[confidence] = uc_results
         
         for model_name, test_results in uc_results.items():
             logging.info(f"\n  {model_name}:")
@@ -593,34 +678,68 @@ def main():
             logging.info(f"    Violation Rate: {test_results['violation_rate']*100:.2f}% (Expected: {test_results['expected_rate']*100:.2f}%)")
             logging.info(f"    LR_UC Statistic: {test_results['LR_UC']:.4f}")
             logging.info(f"    p-value: {test_results['p_value']:.4f}")
-            logging.info(f"    Reject H0 (p < 0.05): {test_results['reject_h0']}")
-    
+            logging.info(f"    Reject H0 (α=0.05): {'YES - INCORRECT COVERAGE' if test_results['reject_h0'] else 'NO - Correct coverage'}")
+
     # Christoffersen Independence (Ind) Test
-    logging.info("\n\nA1.8 Christoffersen Independence (Ind) Test:")
+    logging.info("\n" + "="*80)
+    logging.info("CHRISTOFFERSEN INDEPENDENCE TEST")
+    logging.info("="*80)
     logging.info("H0: VaR violations are independently distributed (no clustering)")
-    
+    logging.info("Reject H0 if p-value < 0.05 (violations are clustered)\n")
+
+    ind_summary = {}
     for confidence in confidence_levels:
-        logging.info(f"\n--- {confidence*100:.0f}% Confidence Level ---")
+        logging.info(f"\n{'─'*80}")
+        logging.info(f"Confidence Level: {confidence*100:.0f}%")
+        logging.info(f"{'─'*80}")
+        
         ind_results = christoffersen_ind_test(forecast_period.values, var_estimates[confidence], confidence)
+        ind_summary[confidence] = ind_results
         
         for model_name, test_results in ind_results.items():
             if not np.isnan(test_results['LR_Ind']):
                 logging.info(f"\n  {model_name}:")
-                logging.info(f"    Transitions 00 (No violation -> No violation): {test_results['transitions_00']}")
-                logging.info(f"    Transitions 01 (No violation -> Violation): {test_results['transitions_01']}")
-                logging.info(f"    Transitions 10 (Violation -> No violation): {test_results['transitions_10']}")
-                logging.info(f"    Transitions 11 (Violation -> Violation): {test_results['transitions_11']}")
+                logging.info(f"    Transition Matrix:")
+                logging.info(f"      No viol → No viol: {test_results['transitions_00']}")
+                logging.info(f"      No viol → Violation: {test_results['transitions_01']}")
+                logging.info(f"      Violation → No viol: {test_results['transitions_10']}")
+                logging.info(f"      Violation → Violation: {test_results['transitions_11']}")
                 logging.info(f"    Total Violations: {test_results['total_violations']}")
                 logging.info(f"    LR_Ind Statistic: {test_results['LR_Ind']:.4f}")
                 logging.info(f"    p-value: {test_results['p_value']:.4f}")
-                logging.info(f"    Reject H0 (p < 0.05): {test_results['reject_h0']}")
+                logging.info(f"    Reject H0 (α=0.05): {'YES - VIOLATIONS CLUSTERED' if test_results['reject_h0'] else 'NO - Independent violations'}")
             else:
                 logging.info(f"\n  {model_name}: Unable to compute (insufficient violations)")
-    
-    logging.info("\n\nA1.8 Note: Reject H0 at 5% significance level means the model's VaR estimates")
-    logging.info("      fail the UC test (incorrect coverage) or Ind test (violations clustered).")
-    print(arch.__version__)
 
+    # Summary table
+    logging.info("\n" + "="*80)
+    logging.info("SUMMARY OF CHRISTOFFERSEN TESTS")
+    logging.info("="*80)
+
+    for confidence in confidence_levels:
+        logging.info(f"\n{confidence*100:.0f}% Confidence Level:")
+        logging.info(f"{'Model':<25} {'UC Test':<15} {'Ind Test':<15} {'Overall'}")
+        logging.info(f"{'-'*70}")
+        
+        for model_name in variance_forecasts_all.keys():
+            uc_pass = "PASS" if not uc_summary[confidence][model_name]['reject_h0'] else "FAIL"
+            
+            if not np.isnan(ind_summary[confidence][model_name]['LR_Ind']):
+                ind_pass = "PASS" if not ind_summary[confidence][model_name]['reject_h0'] else "FAIL"
+            else:
+                ind_pass = "N/A"
+            
+            overall = "PASS" if (uc_pass == "PASS" and (ind_pass == "PASS" or ind_pass == "N/A")) else "FAIL"
+            
+            logging.info(f"{model_name:<25} {uc_pass:<15} {ind_pass:<15} {overall}")
+
+    logging.info("\n" + "="*80)
+    logging.info("Note: A model PASSES if it fails to reject H0 (p-value >= 0.05)")
+    logging.info("      UC Test: Correct unconditional coverage")
+    logging.info("      Ind Test: Independent violations (no clustering)")
+    logging.info("="*80)
+
+    print(f"\nUsing arch version: {arch.__version__}")
 
 """
 Complete GARCH-X implementation with debugging
