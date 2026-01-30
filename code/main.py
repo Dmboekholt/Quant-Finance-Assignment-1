@@ -217,15 +217,25 @@ def main():
                     os.path.join(PLOTS_DIR, 'A1.3.3_Riskmetric_Volatility.png'), 
                     label='Riskmetric Volatility', x_data=df['DATE'].iloc[63:].values)
     
-    # A1.3.5 Plot Realised Variance vs Riskmetric Volatility (on same plot)
+    # A1.3.5 Plot Historical Variance vs Riskmetric Volatility (on same plot)
+    # Align all series from date 252 onwards so all series have values
+    # historical_variance[63] starts at date 63, so use from index 252-63 = 189
+    # historical_variance[126] starts at date 126, so use from index 252-126 = 126
+    # historical_variance[252] starts at date 252, so use from index 0
+    # riskmetric_volatility[1:] starts at date 63, so use from index 252-63 = 189
     plot_multiple_timeseries(
-        [df['RV'].iloc[63:].values, riskmetric_volatility[1:]],
-        ['Realised Variance', 'Riskmetric Volatility'],
-        'Realised Variance vs Riskmetric Volatility',
+        [
+            historical_variance[63][252-63:],
+            historical_variance[126][252-126:],
+            historical_variance[252],
+            riskmetric_volatility[1:][252-63:]
+        ],
+        ['Historical Variance (T=63)', 'Historical Variance (T=126)', 'Historical Variance (T=252)', 'Riskmetric Volatility'],
+        'Historical Variance vs Riskmetric Volatility',
         'Date',
         'Value',
-        os.path.join(PLOTS_DIR, 'A1.3.5_Realised_Variance_vs_Riskmetric_Volatility.png'),
-        x_data=df['DATE'].iloc[63:].values
+        os.path.join(PLOTS_DIR, 'A1.3.5_Historical_Variance_vs_Riskmetric_Volatility.png'),
+        x_data=df['DATE'].iloc[252:].values
     )
 
 
